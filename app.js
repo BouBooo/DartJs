@@ -1,11 +1,13 @@
 const app=require('express')()
 const PORT=process.env.PORT || 3010
 const HOST=process.env.HOST || 'localhost'
+const playerRouter = require('./routers/player.js')
 
 app.listen(PORT, () => {
     console.log('Server is up on : http://' + HOST + ':' + PORT)
 })
 
+app.use('/players', playerRouter)
 
 // Home page
 app.get('/', (req, res) => {
@@ -15,7 +17,10 @@ app.get('/', (req, res) => {
         },
         json: () => {
             res.json({
-                error : '406 NOT_API_AVAILABLE'
+                error : {
+                    type: '406 NOT_API_AVAILABLE',
+                    message: 'Not API available for path : ' + req.path
+                }
             })
         }
     })
