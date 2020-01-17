@@ -1,7 +1,19 @@
 const app=require('express')()
+const bodyParser = require('body-parser')
 const PORT=process.env.PORT || 3010
 const HOST=process.env.HOST || 'localhost'
 const playerRouter = require('./routers/player.js')
+
+/** 
+ * Define template engine
+ */
+app.set('views', './views') 
+app.set('view engine', 'hbs')
+
+
+// MIDDLEWARE POUR PARSER LE BODY
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.listen(PORT, () => {
     console.log('Server is up on : http://' + HOST + ':' + PORT)
