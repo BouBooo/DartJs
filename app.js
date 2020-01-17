@@ -2,7 +2,8 @@ const app=require('express')()
 const bodyParser = require('body-parser')
 const PORT=process.env.PORT || 3010
 const HOST=process.env.HOST || 'localhost'
-const playerRouter = require('./routers/player.js')
+const playerRouter = require('./routers/player')
+const gameRouter = require('./routers/game')
 
 /** 
  * Define template engine
@@ -20,6 +21,7 @@ app.listen(PORT, () => {
 })
 
 app.use('/players', playerRouter)
+app.use('/games', gameRouter)
 
 // Home page
 app.get('/', (req, res) => {

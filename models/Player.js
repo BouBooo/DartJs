@@ -25,16 +25,28 @@ module.exports = {
         return all
     },
 
+    getOne: async (id) => {
+        const player = await Player.findOne({_id:id})
+        return player
+      },
+
     async create(params) {
         var params = { 
             name: params.name,
             email: params.email,
-            gameWin: 2,
-            gameLost: 3,
+            gameWin: 0,
+            gameLost: 0,
             createdAt: Date.now()
           }
       
           let newPlayer = new Player(params)
           newPlayer.save()
+          return newPlayer
+    },
+
+    async edit(params) {
+        var param = {
+            id: params.id
+        }
     }
 }
