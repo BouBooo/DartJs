@@ -5,13 +5,20 @@ const HOST=process.env.HOST || 'localhost'
 const playerRouter = require('./routers/player')
 const gameRouter = require('./routers/game')
 const hbs = require('express-handlebars')
+const methodOverride = require('method-override')
 
 /** 
  * Define template engine
  */
-app.engine('hbs', hbs({extname: 'hbs', defaultLayout: 'layout'}))
+app.engine('hbs', hbs({extname: 'hbs', defaultLayout: 'layout', allowProtoMethodsByDefault: true}))
 app.set('views', './views') 
 app.set('view engine', 'hbs')
+
+
+/**
+ * Override method
+ */
+app.use(methodOverride('_method'))
 
 
 // MIDDLEWARE POUR PARSER LE BODY

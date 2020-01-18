@@ -7,7 +7,7 @@ mongoose.connect(url, {
 })
 
 var Player = mongoose.model('player', new mongoose.Schema({ 
-    rowid: String,
+    // rowid: String,
     name: String,
     email: String,
     gameWin: Number,
@@ -46,10 +46,16 @@ module.exports = {
           return newPlayer
     },
 
-    // Edit a specific player
-    async edit(params) {
-        var param = {
-            id: params.id
-        }
+    update: async (id, params) => {
+      let els = { 
+        name: params.name,
+        email: params.email
+      }
+      console.log(els)
+      return await Player.updateOne({_id: id}, els)
+    },
+
+    remove: async (id) => {
+      Player.findOneAndRemove({_id: id})
     }
 }

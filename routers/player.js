@@ -32,7 +32,10 @@ router.get('/', (req, res, next) => {
 router.get('/new', (req, res, next) => {  
     res.format({
         html: () => {
-            res.render('get_players_new')
+            res.render('get_players_new', {
+                title: 'Ajouter un joueur',
+                button: 'Ajouter'
+            })
         },
         json: () => {
             res.json({
@@ -79,9 +82,8 @@ router.post('/', (req, res, next) => {
                         player: result
                     }) 
                 },
-                // TODO : Redirect to /player/:id/edit
                 html : () => {
-                    res.redirect('/players/' + result._id)
+                    res.redirect('/players/' + result._id + '/edit')
                 } 
             })
         })
@@ -91,11 +93,10 @@ router.post('/', (req, res, next) => {
 
 /**
  * JSON: 406 NOT_API_AVAILABLE  
- * HTML:
+ * HTML: Edit form
  */
 router.get('/:id/edit', (req, res, next) => {
-    console.log(req.params.id)
-    Player.edit(req.params.id) 
+    Player.getOne(req.params.id) 
         .then((result) => {
             res.format({
                 json: () => {
@@ -105,12 +106,45 @@ router.get('/:id/edit', (req, res, next) => {
                             message: 'Not API available for path : ' + baseUrl + req.path
                         }
                     })
-                }
+                },
+                html: () => {
+                    res.render('get_players_patch', {
+                        title: 'Modifier un joueur',
+                        player: result.toJSON(),
+                        button: 'Modifier',
+                        id: result._id
+                    })
+                },
             })
         }) 
         .catch((err) => {
             throw err
         })
 })
+
+/**
+ * JSON: 200 Player
+ * HTML: Redirect to /players
+ */
+router.patch('/:id', (req, res, next) => {
+    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    Player.update(req.params.id, req.body)
+        .then((result) => {
+            res.format({
+                html: () => { 
+                    res.redirect('/players') 
+                },
+                json: () => { 
+                    res.status(200).send({ player: result }) 
+                }
+            })
+        })
+        .catch(next)
+})
+
+
+router.delete(':id', (req, res, next) => {
+    // TODO
+}) 
 
 module.exports = router

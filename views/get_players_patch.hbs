@@ -1,7 +1,7 @@
 <div class="container">
 <h1>{{ title }}</h1>
         
-<form method="POST" action="/players/">
+<form method="POST" action="/players/{{player._id}}?_method=PATCH">
 
  <table class="table table-striped table-bordered" width="55%">
     <tr width="30%">
