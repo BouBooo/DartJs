@@ -14,15 +14,15 @@
         <th>Voir</th>
       </tr>
 
-      {{players.length}}
-      {{#each players as |val key| }}
+      {{!-- {{players.length}} --}}
+      {{#each players}}
           <tr width="30%">
-          <td align="center">{{ key }}</td>
-          <td align="center">{{{name}}}</td>
-          <td align="center">{{{email}}}</td>
-          <td align="center">{{{gameWin}}}</td>
-          <td align="center">{{{gameLost}}}</td>
-          <td align="center">{{{createdAt}}}</td>
+          <td align="center">{{ _id }}</td>
+          <td align="center">{{name}}</td>
+          <td align="center">{{email}}</td>
+          <td align="center">{{gameWin}}</td>
+          <td align="center">{{gameLost}}</td>
+          <td align="center">{{createdAt}}</td>
           <td align="center"></td>
           <td align="center"></td>
       </tr>

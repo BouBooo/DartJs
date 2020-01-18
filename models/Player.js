@@ -6,7 +6,7 @@ mongoose.connect(url, {
   useUnifiedTopology: true
 })
 
-var Player = mongoose.model('player', new mongoose.Schema({ 
+const Player = mongoose.model('player', new mongoose.Schema({ 
     // rowid: String,
     name: String,
     email: String,
