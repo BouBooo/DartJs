@@ -1,0 +1,33 @@
+<h1 align="center my-5">Joueurs</h1>
+
+<div class="container">
+    <div id="comments">
+    <table class="table table-striped table-bordered">
+      <tr width="30%">
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Parties gagnées</th>
+        <th>Parties perdues</th>
+        <th>Date de création</th>
+        <th>Supprimer</th>
+        <th>Voir</th>
+      </tr>
+
+      {{players.length}}
+      {{#each players as |val key| }}
+          <tr width="30%">
+          <td align="center">{{ key }}</td>
+          <td align="center">{{{name}}}</td>
+          <td align="center">{{{email}}}</td>
+          <td align="center">{{{gameWin}}}</td>
+          <td align="center">{{{gameLost}}}</td>
+          <td align="center">{{{createdAt}}}</td>
+          <td align="center"></td>
+          <td align="center"></td>
+      </tr>
+      {{/each}}
+
+      </table>
+    </div>
+</div>

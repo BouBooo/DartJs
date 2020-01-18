@@ -19,17 +19,19 @@ var Player = mongoose.model('player', new mongoose.Schema({
 
 module.exports = {
     
-    // Get all Players
+    // Get all players
     getAll() {
         const all = Player.find({})
         return all
     },
 
+    // Get specific player
     getOne: async (id) => {
         const player = await Player.findOne({_id:id})
         return player
       },
 
+    // Create new player
     async create(params) {
         var params = { 
             name: params.name,
@@ -44,6 +46,7 @@ module.exports = {
           return newPlayer
     },
 
+    // Edit a specific player
     async edit(params) {
         var param = {
             id: params.id

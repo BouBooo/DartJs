@@ -4,10 +4,12 @@ const PORT=process.env.PORT || 3010
 const HOST=process.env.HOST || 'localhost'
 const playerRouter = require('./routers/player')
 const gameRouter = require('./routers/game')
+const hbs = require('express-handlebars')
 
 /** 
  * Define template engine
  */
+app.engine('hbs', hbs({extname: 'hbs', defaultLayout: 'layout'}))
 app.set('views', './views') 
 app.set('view engine', 'hbs')
 
