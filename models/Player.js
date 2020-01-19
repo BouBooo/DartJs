@@ -56,6 +56,6 @@ module.exports = {
     },
 
     remove: async (id) => {
-      Player.findOneAndRemove({_id: id})
+      return Player.findOneAndRemove({_id: id})
     }
 }

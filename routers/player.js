@@ -143,8 +143,21 @@ router.patch('/:id', (req, res, next) => {
 })
 
 
-router.delete(':id', (req, res, next) => {
-    // TODO
+router.delete('/:id', (req, res, next) => {
+    // TODO: Check if player is removable
+    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    Player.remove(req.params.id)
+        .then((result) => {
+            res.format({
+                html: () => { 
+                    res.redirect('/players') 
+                },
+                json: () => { 
+                    res.status(204) 
+                }
+            })
+        })
+        .catch(next)
 }) 
 
 module.exports = router

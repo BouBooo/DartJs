@@ -1,30 +1,34 @@
-<h1 align="center my-5">Joueurs</h1>
+<h1 class="text-center my-5">Joueurs</h1>
 
 <div class="container">
-    <div id="comments">
+    <div class="users">
     <table class="table table-striped table-bordered">
-      <tr width="30%">
+      <tr>
         <th>ID</th>
         <th>Nom</th>
         <th>Email</th>
         <th>Parties gagnées</th>
         <th>Parties perdues</th>
         <th>Date de création</th>
-        <th>Supprimer</th>
-        <th>Voir</th>
+        <th width="">Actions</th>
       </tr>
 
-      {{!-- {{players.length}} --}}
       {{#each players}}
-          <tr width="30%">
-          <td align="center">{{ _id }}</td>
-          <td align="center">{{name}}</td>
-          <td align="center">{{email}}</td>
-          <td align="center">{{gameWin}}</td>
-          <td align="center">{{gameLost}}</td>
-          <td align="center">{{createdAt}}</td>
-          <td align="center"></td>
-          <td align="center"></td>
+          <tr>
+          <td>{{ _id }}</td>
+          <td>{{name}}</td>
+          <td>{{email}}</td>
+          <td>{{gameWin}}</td>
+          <td>{{gameLost}}</td>
+          <td>{{createdAt}}</td>
+          <td class="d-flex justify-content-between">
+            <a href="/players/{{_id}}/edit" class="btn btn-primary">
+              Voir
+            </a>
+            <form method="POST" action="/players/{{_id}}?_method=DELETE">
+              <button class="btn btn-warning" type="submit">Supprimer</button>
+            </form>
+          </td>
       </tr>
       {{/each}}
 

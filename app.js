@@ -1,4 +1,5 @@
 const app=require('express')()
+const express = require('express');
 const bodyParser = require('body-parser')
 const PORT=process.env.PORT || 3010
 const HOST=process.env.HOST || 'localhost'
@@ -13,6 +14,8 @@ const methodOverride = require('method-override')
 app.engine('hbs', hbs({extname: 'hbs', defaultLayout: 'layout', allowProtoMethodsByDefault: true}))
 app.set('views', './views') 
 app.set('view engine', 'hbs')
+
+app.use(express.static(__dirname + '/assets'));
 
 
 /**
