@@ -1,0 +1,30 @@
+<div class="container">
+<h1 class="text-center my-5">Modifier une partie</h1>
+        
+<form method="POST" action="/players/{{game._id}}?_method=PATCH">
+ <table class="table table-striped table-bordered" width="55%">
+    <tr width="30%">
+      <th><label for="name">Name</label></th>
+      <th><label for="name">Mode de jeu</label></th>
+      <th><label for="name">Status</label></th>
+      <th>Actions</th>
+    </tr>
+    <tr width="10%">
+      <td align="center"><input class="form-control" value="{{ game.name }}"width="20px" type="text" name="name" id="name" required/></td>
+      <td align="center">
+          <select name="mode" class="form-control">
+            <option value="around-the-world">Around The World</option>
+            <option value="301">301</option>
+            <option value="cricket">Cricket</option>
+        </select>
+      </td>
+      <td align="center"><input class="form-control" value="{{ game.status }}" width="20px" type="text" name="status" id="status" required/></td>
+      <td align="center"><button class="btn btn-link" type="submit">{{ button }}</button></td>
+    </tr>
+  </table>
+  </form>
+</div>
+
+
+</body>
+</html>

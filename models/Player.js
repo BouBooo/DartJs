@@ -20,9 +20,10 @@ const Player = mongoose.model('player', new mongoose.Schema({
 module.exports = {
     
     // Get all players
-    getAll() {
-        const all = Player.find({})
-        return all
+    getAll(query) {
+      let limit = parseInt(query.limit)
+      let sort = query.sort
+      return Player.find({}).limit(limit).sort({ [sort]: 1}) 
     },
 
     // Get specific player
@@ -51,7 +52,6 @@ module.exports = {
         name: params.name,
         email: params.email
       }
-      console.log(els)
       return await Player.updateOne({_id: id}, els)
     },
 

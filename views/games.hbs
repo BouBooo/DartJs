@@ -1,0 +1,36 @@
+<h1 class="text-center my-5">Parties</h1>
+
+<div class="text-center mb-5">
+    <a href="/players" class="btn btn-primary btn-lg">Gérer les joueurs</a>
+</div>
+<div class="container">
+    <div class="users">
+    <table class="table table-striped table-bordered">
+      <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Mode de jeu</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+
+      {{#each games}}
+          <tr>
+          <td>{{ _id }}</td>
+          <td>{{name}}</td>
+          <td>{{mode}}</td>
+          <td>{{status}}</td>
+          <td class="d-flex justify-content-between">
+            <a href="/games/{{_id}}/edit" class="btn btn-primary">
+              Voir
+            </a>
+            <form method="POST" action="/games/{{_id}}?_method=DELETE">
+              <button class="btn btn-warning" type="submit">Supprimer</button>
+            </form>
+          </td>
+      </tr>
+      {{/each}}
+
+      </table>
+    </div>
+</div>

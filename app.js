@@ -1,8 +1,8 @@
 const app=require('express')()
 const express = require('express');
 const bodyParser = require('body-parser')
-const PORT=process.env.PORT || 3010
-const HOST=process.env.HOST || 'localhost'
+const PORT = process.env.PORT || 3010
+const HOST = process.env.HOST || 'localhost'
 const playerRouter = require('./routers/player')
 const gameRouter = require('./routers/game')
 const hbs = require('express-handlebars')

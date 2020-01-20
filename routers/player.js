@@ -8,9 +8,8 @@ const baseUrl = 'https://localhost/players'
  * HTML: Player list
  */
 router.get('/', (req, res, next) => {  
-    Player.getAll()
+    Player.getAll(req.query)
         .then((response) => {
-            console.log(response)
             res.format({
                 json: () => {
                     res.json({
@@ -52,7 +51,6 @@ router.get('/:id', (req, res, next) => {
     if(!req.params.id) res.json({message: 'Missing argument : id'}) 
     Player.getOne(req.params.id)
         .then((response) => {
-            console.log(response)
             res.format({
                 json: () => {
                     res.json({

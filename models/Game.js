@@ -11,13 +11,20 @@ const Game = mongoose.model('game', new mongoose.Schema({
     name: String,
     currentPlayerId: Number,
     status: String,
-    createdAt: Date
+    createdAt: Date 
 }))
 
 module.exports = {
+
+    // Get all games
+    getAll() {
+        return Game.find({})
+    },
+
     // Get specific game
-    getOne: async (id) => {
-        const game = await Game.findOne({_id:id})
+    async getOne(id) {
+        let game = await Game.findOne({_id:id})
+        console.log(game)
         return game
       },
 
@@ -34,4 +41,8 @@ module.exports = {
           newGame.save()
           return newGame
     },
+
+    remove: async (id) => {
+        return Game.findOneAndRemove({_id: id})
+    }
 }

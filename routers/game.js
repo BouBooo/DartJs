@@ -3,7 +3,21 @@ const Game = require('../models/Game')
 const baseUrl = 'https://localhost/games'
 
 router.get('/', (req, res, next) => {  
-    res.send('GET /games')   
+    Game.getAll()
+    .then((result) => {
+        res.format({
+        html: () => {
+            res.render('games', {
+                games: result
+            })
+        },
+        json: () => {
+            res.json({
+                games: result
+            })
+        }
+    })  
+    })   
 })
 
 /**
@@ -15,7 +29,7 @@ router.get('/new', (req, res, next) => {
         html: () => {
             res.render('get_games_new', {
                 title: 'Créer une partie',
-                button: 'Créer'
+                button: 'Créer',
             })
         },
         json: () => {
@@ -51,7 +65,7 @@ router.get('/:id', (req, res, next) => {
 
 /**
  * JSON: 201 Player Json Object 
- * HTML: Redirect to /player/:id
+ * HTML: Redirect to /games/:id
  */
 router.post('/', (req, res, next) => {
     console.log(req.body)
@@ -71,5 +85,52 @@ router.post('/', (req, res, next) => {
         })
         .catch(next)
 })
+
+/**
+ * JSON: 406 NOT_API_AVAILABLE  
+ * HTML: Edit form
+ */
+router.get('/:id/edit', (req, res, next) => {
+    Game.getOne(req.params.id)
+        .then((result) => {
+            res.format({
+                json: () => {
+                    res.json({
+                        error: {
+                            type: '406 NOT_API_AVAILABLE',
+                            message: 'Not API available for path : ' + baseUrl + req.path
+                        }
+                    })
+                },
+                html: () => {
+                    res.render('get_games_patch', {
+                        title: 'Modifier une partie',
+                        game: result,
+                        button: 'Modifier',
+                        id: result._id
+                    })
+                },
+            })
+        }) 
+        .catch((err) => {
+            throw err
+        })
+})
+
+router.delete('/:id', (req, res, next) => {
+    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    Game.remove(req.params.id)
+        .then(() => {
+            res.format({
+                html: () => { 
+                    res.redirect('/games') 
+                },
+                json: () => { 
+                    res.status(204) 
+                }
+            })
+        })
+        .catch(next)
+})  
 
 module.exports = router
