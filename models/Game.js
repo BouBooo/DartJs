@@ -24,7 +24,6 @@ module.exports = {
     // Get specific game
     async getOne(id) {
         let game = await Game.findOne({_id:id})
-        console.log(game)
         return game
       },
 
@@ -41,6 +40,15 @@ module.exports = {
           newGame.save()
           return newGame
     },
+
+    update: async (id, params) => {
+        let els = { 
+          name: params.name,
+          mode: params.mode,
+          status: params.status
+        }
+        return await Game.updateOne({_id: id}, els)
+      },
 
     remove: async (id) => {
         return Game.findOneAndRemove({_id: id})

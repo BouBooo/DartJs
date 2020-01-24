@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const Game = require('../models/Game')
+const Player = require('../models/Player')
 const baseUrl = 'https://localhost/games'
 
 router.get('/', (req, res, next) => {  
@@ -79,7 +80,7 @@ router.post('/', (req, res, next) => {
                     }) 
                 },
                 html : () => {
-                    res.redirect('/games/' + result._id)
+                    res.redirect('/games/' + result._id + '/edit')
                 } 
             })
         })
@@ -117,6 +118,26 @@ router.get('/:id/edit', (req, res, next) => {
         })
 })
 
+/**
+ * JSON: 200 Game
+ * HTML: Redirect to /games
+ */
+router.patch('/:id', (req, res, next) => {
+    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    Game.update(req.params.id, req.body)
+        .then((result) => {
+            res.format({
+                html: () => { 
+                    res.redirect('/games') 
+                },
+                json: () => { 
+                    res.status(200).send({ game: result }) 
+                }
+            })
+        })
+        .catch(next)
+})
+
 router.delete('/:id', (req, res, next) => {
     if(!req.params.id) res.json({message: 'Missing argument : id'}) 
     Game.remove(req.params.id)
@@ -132,5 +153,31 @@ router.delete('/:id', (req, res, next) => {
         })
         .catch(next)
 })  
+
+
+router.get('/:id/players', (req, res, next) => {
+    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    Game.getOne(req.params.id)
+        .then((response) => {
+            console.log(response)
+            res.format({
+                json: () => {
+                    res.json({
+                        game: response
+                    })
+                },
+                html: () => {
+                    res.render('get_games_players', {
+                        game: response
+                    })
+                }
+            })
+        })
+        .catch((err) => {
+            res.json({
+                message: 'No game found'
+            })
+        })
+})
 
 module.exports = router
