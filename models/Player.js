@@ -20,10 +20,14 @@ const Player = mongoose.model('player', new mongoose.Schema({
 module.exports = {
     
     // Get all players
-    getAll(query) {
+    getAll : async (query) => {
       let limit = parseInt(query.limit)
       let sort = query.sort
-      return Player.find({}).limit(limit).sort({ [sort]: 1}) 
+      return await Player.find({}).limit(limit).sort({ [sort]: 1}) 
+    },
+
+    getPlayerForGame(idArray) {
+        return Player.find({_id: { $in : idArray }})
     },
 
     // Get specific player
