@@ -2,6 +2,7 @@ const router = require('express').Router()
 const Game = require('../models/Game')
 const Player = require('../models/Player')
 const GamePlayer = require('../models/GamePlayer')
+const GameShot = require('../models/GameShot')
 const baseUrl = 'https://localhost/games'
 
 router.get('/', (req, res, next) => {  
@@ -235,7 +236,6 @@ router.post('/:id/players', (req, res, next) => {
 })
 
 router.delete('/:id/players', (req, res, next) => {
-    console.log('remove route')
     Game.getOne(req.params.id)
         .then((game) => {
             console.log(game)
@@ -252,5 +252,30 @@ router.delete('/:id/players', (req, res, next) => {
             })
         })
 })
+
+router.post('/:id/shot', (req, res, next) => {
+    console.log('post route')
+    if(!req.params.id) return res.send({ error : 'Id missing'})
+    Game.getOne(req.params.id)
+    .then((game) => {
+        if(game.status == 'draft') return res.json({'error' : 'GAME_NOT_STARTED'})
+        if(game.status == 'ended') return res.json({'error' : 'GAME_ENDED'})
+        GameShot.create(game._id, req.body)
+                .then((result) => {
+                    res.format({
+                        json: () => { 
+                            res.status(201).send({
+                                player_added: result
+                            }) 
+                        },
+                        html : () => {
+                            res.redirect('/games/' + result.gameId + '/players')
+                        } 
+                    })
+                })
+                .catch(next)
+    })
+})
+
 
 module.exports = router
