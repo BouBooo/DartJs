@@ -42,4 +42,8 @@ module.exports = {
           newGame.save()
           return newGame
     },
+
+    remove: async (id) => {
+        return GamePlayer.findOneAndRemove({playerId: id})
+    }
 }

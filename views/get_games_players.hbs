@@ -6,7 +6,7 @@
 <div class="main">
     <div class="d-flex justify-content-around">
         <div class="col-4 game_players">
-             <h1>Joueurs dans la partie</h1>
+             <h3>Joueurs dans la partie ({{ playersId }} / 4)</h3   >
             <table class="table table-striped table-bordered">
             <tr>
                 <th>Nom</th>
@@ -14,6 +14,29 @@
                 <th>Actions</th>
             </tr>
             {{#each players}}
+            <tr>
+                <td>{{name}}</td>
+                <td>{{email}}</td>
+                <td class="d-flex justify-content-between">
+                <form method="GET" action="/games/{{../game._id}}/players?_method=DELETE">
+                    <input type="hidden" value="{{ _id }}">
+                    <button class="btn btn-warning" type="submit">Supprimer</button>
+                </form>
+                </td>
+            </tr>
+            {{/each}}
+
+            </table>
+        </div>
+        <div class="col-4 no_game_players">
+             <h1>Joueurs sans game</h1>
+            <table class="table table-striped table-bordered">
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+            {{#each noPlayers }}
             <tr>
                 <td>{{name}}</td>
                 <td>{{email}}</td>
@@ -32,36 +55,6 @@
                 </td>
             </tr>
             {{/each}}
-
-            </table>
-        </div>
-        <div class="col-4 no_game_players">
-             <h1>Joueurs sans game</h1>
-            <table class="table table-striped table-bordered">
-            <tr>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Actions</th>
-            </tr>
-            {{!-- {{#each players}}
-            <tr>
-                <td>{{name}}</td>
-                <td>{{email}}</td>
-                <td class="d-flex justify-content-between">
-                <form method="POST" action="/games/{{ ../game._id }}/players">
-                    <input type="hidden" value="{{ ../game._id }}" name="game_id">
-                    <input type="hidden" value="{{ _id }}" name="player_id">
-                    <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Ajouter
-                    </button>
-                </form>
-                <form method="POST" action="#">
-                    <button class="btn btn-warning" type="submit">Supprimer</button>
-                </form>
-                </td>
-            </tr>
-            {{/each}} --}}
             </table>
         </div>
     </div>

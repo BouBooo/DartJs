@@ -159,6 +159,7 @@ router.delete('/:id', (req, res, next) => {
 // Game Players
 
 router.get('/:id/players', (req, res, err) => {
+    console.log('get route')
     if(!req.params.id) res.json({message: 'Missing argument : id'}) 
     Game.getOne(req.params.id)
         .then((response) => {
@@ -166,22 +167,27 @@ router.get('/:id/players', (req, res, err) => {
             .then((games) => {
                 let playersId = []
                 games.forEach(game => playersId.push(game.playerId))
-                    console.log(playersId)
+                    // console.log(playersId)
                     Player.getPlayerForGame(playersId)
                         .then((playersInGame) => {
-                            res.format({
-                                json: () => {
-                                    res.json({
-                                        game: response
+                            Player.getPlayerNotInGame(playersId)
+                                .then((playersNotInGame) => {
+                                    res.format({
+                                        json: () => {
+                                            res.json({
+                                                game: response
+                                            })
+                                        },
+                                        html: () => {
+                                            res.render('get_games_players', {
+                                                game: response,
+                                                players: playersInGame,
+                                                noPlayers: playersNotInGame,
+                                                playersId: playersId.length
+                                            })
+                                        }
                                     })
-                                },
-                                html: () => {
-                                    res.render('get_games_players', {
-                                        game: response,
-                                        players: playersInGame
-                                    })
-                                }
-                            })
+                                })
                         })
                 })
                 
@@ -198,22 +204,53 @@ router.get('/:id/players', (req, res, err) => {
  * HTML: Redirect to /games/:id
  */
 router.post('/:id/players', (req, res, next) => {
+    console.log('post route')
     if(!req.params.id) return res.send({ error : 'Id missing'})
-    GamePlayer.create(req.body)
-        .then((result) => {
-            console.log(result)
+    Game.getOne(req.params.id)
+    .then((game) => {
+        GamePlayer.getAll(game._id)
+        .then((games) => {
+            let gamesId = []
+            games.forEach(game => gamesId.push(game.gameId))
+            if(gamesId.length >= 4) return res.json({
+                'error': 'Already 4 players in this room'
+            })
+            GamePlayer.create(req.body)
+                .then((result) => {
+
+                    res.format({
+                        json: () => { 
+                            res.status(201).send({
+                                player_added: result
+                            }) 
+                        },
+                        html : () => {
+                            res.redirect('/games/' + result.gameId + '/players')
+                        } 
+                    })
+                })
+                .catch(next)
+        })
+    })
+})
+
+router.delete('/:id/players', (req, res, next) => {
+    console.log('remove route')
+    Game.getOne(req.params.id)
+        .then((game) => {
+            console.log(game)
+            if(game.status != 'draft') return res.json({'error' : 'Game already started or is ended'})
+            if(!req.query.id) return res.json({'error' : 'Id missing for remove a player from this room.'})
+            GamePlayer.remove(req.query.id)
             res.format({
-                json: () => { 
-                    res.status(201).send({
-                        player_added: result
-                    }) 
+                html: () => { 
+                    res.redirect('/games') 
                 },
-                html : () => {
-                    res.redirect('/games/' + result.gameId + '/players')
-                } 
+                json: () => { 
+                    res.status(204) 
+                }
             })
         })
-        .catch(next)
 })
 
 module.exports = router

@@ -30,6 +30,10 @@ module.exports = {
         return Player.find({_id: { $in : idArray }})
     },
 
+    getPlayerNotInGame(idArray) {
+      return Player.find({_id: { $nin : idArray }})
+  },
+
     // Get specific player
     getOne: async (id) => {
         const player = await Player.findOne({_id:id})

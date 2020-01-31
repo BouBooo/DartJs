@@ -18,7 +18,13 @@
             <option value="cricket">Cricket</option>
         </select>
       </td>
-      <td align="center"><input class="form-control" value="{{ game.status }}" width="20px" type="text" name="status" id="status" required/></td>
+      <td align="center">
+          <select name="status" class="form-control">
+            <option value="draft">Draft</option>
+            <option value="started">Started</option>
+            <option value="ended">Ended</option>
+        </select>
+      </td>
       <td align="center"><button class="btn btn-link" type="submit">{{ button }}</button></td>
     </tr>
   </table>
