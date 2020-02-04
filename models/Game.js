@@ -57,7 +57,7 @@ module.exports = {
         let els = { 
           name: params.name,
           mode: params.mode,
-          status: params.status
+          status: 'draft'
         }
         return await Game.updateOne({_id: id}, els)
       },

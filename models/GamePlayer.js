@@ -24,6 +24,11 @@ module.exports = {
         return GamePlayer.find({gameId: game._id})
     },
 
+    getGameForPlayer(playerId) {
+        console.log(playerId)
+        return GamePlayer.findOne({playerId: playerId})
+    },
+
     // Create new game
     async create(params) {
         console.log(params.game_id, params.player_id)
@@ -41,6 +46,10 @@ module.exports = {
           let newGame = new GamePlayer(params)
           newGame.save()
           return newGame
+    },
+
+    multpipleRemove: async (id) => {
+        return GamePlayer.remove({playerId: id})
     },
 
     remove: async (id) => {

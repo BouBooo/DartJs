@@ -1,5 +1,7 @@
 const router = require('express').Router()
 const Player = require('../models/Player')
+const Game = require('../models/Game')
+const GamePlayer = require('../models/GamePlayer')
 const baseUrl = 'https://localhost/players'
 
 
@@ -142,20 +144,36 @@ router.patch('/:id', (req, res, next) => {
 
 
 router.delete('/:id', (req, res, next) => {
-    // TODO: Check if player is removable
     if(!req.params.id) res.json({message: 'Missing argument : id'}) 
-    Player.remove(req.params.id)
-        .then((result) => {
-            res.format({
-                html: () => { 
-                    res.redirect('/players') 
-                },
-                json: () => { 
-                    res.status(204) 
-                }
-            })
+    GamePlayer.getGameForPlayer(req.params.id) 
+    .then((playerGame) => {
+        console.log(playerGame)
+        Game.getOne(playerGame.gameId)
+        .then((game) => {
+            if(game.status != 'draft') {
+                return res.json({message: 'Player not deletable. Game status :' + game.status})
+            } 
+            else {
+                // TODO : Remove game_players relations
+                Player.remove(req.params.id)
+                .then((result) => {
+                    GamePlayer.multpipleRemove(req.params.id)
+                        .then((response) => {
+                            res.format({
+                                html: () => { 
+                                    res.redirect('/players') 
+                                },
+                                json: () => { 
+                                    res.status(204) 
+                                }
+                            })
+                        })
+                        .catch(next)
+                    
+                })
+            }
         })
-        .catch(next)
+    })
 }) 
 
 module.exports = router
