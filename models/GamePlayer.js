@@ -29,11 +29,11 @@ module.exports = {
     },
 
     // Create new game
-    async create(params) {
-        console.log(params.game_id, params.player_id)
+    async create(playerId, gameId) {
+        // console.log(params.game_id, params.player_id)
         var params = { 
-            playerId: params.player_id,
-            gameId: params.game_id,
+            playerId: playerId,
+            gameId: gameId,
             remainingShots: null,
             score: null,
             rank: null,

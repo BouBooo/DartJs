@@ -52,13 +52,13 @@ router.get('/:id', (req, res, next) => {
     Game.getOne(req.params.id)
         .then((game) => {
             GamePlayer.getAll(game._id)
-                .then((games) => {              
+                .then((games) => {          
                     let playersId = []
                     games.forEach(game => playersId.push(game.playerId))
+                    if(games.length === 0) return res.send({ alert : 'No player in this game.', game: game})
                     Player.getPlayerForGame(playersId)
                         .then((playersInGame) => {
                             let currentPlayer = playersInGame[Math.floor(Math.random() * playersInGame.length)]
-                            console.log(currentPlayer)
                             let randomShot = {
                                 playerId : currentPlayer._id,
                                 gameId : game._id,
@@ -68,7 +68,7 @@ router.get('/:id', (req, res, next) => {
                             res.format({
                                 json: () => {
                                     res.json({
-                                        game: game,
+                                        game: game
                                     })
                                 },
                                 html: () => {
@@ -78,7 +78,6 @@ router.get('/:id', (req, res, next) => {
                                         playersId: playersId.length,
                                         currentPlayer: currentPlayer,
                                         randomShot: randomShot
-
                                     })
                                 }
                             })
@@ -201,7 +200,7 @@ router.get('/:id/players', (req, res, err) => {
                                     res.format({
                                         json: () => {
                                             res.json({
-                                                game: response
+                                                players: playersInGame
                                             })
                                         },
                                         html: () => {
@@ -246,21 +245,24 @@ router.post('/:id/players', (req, res, next) => {
             if(gamesId.length >= 4) return res.json({
                 'error': 'Already 4 players in this room'
             })
-            GamePlayer.create(req.body)
-                .then((result) => {
-
-                    res.format({
-                        json: () => { 
-                            res.status(201).send({
-                                player_added: result
-                            }) 
-                        },
-                        html : () => {
-                            res.redirect('/games/' + result.gameId + '/players')
-                        } 
+            let playersId = req.body.player_id.split(',')
+            console.log(playersId)
+            playersId.forEach(player => 
+                GamePlayer.create(player, game._id)
+                    .then((result) => {
+                        res.format({
+                            json: () => { 
+                                res.status(201).send({
+                                    player_added: result
+                                }) 
+                            },
+                            html : () => {
+                                res.redirect('/games/' + result.gameId + '/players')
+                            } 
+                        })
                     })
-                })
-                .catch(next)
+                    .catch(next)
+                ) 
         })
     })
 })
