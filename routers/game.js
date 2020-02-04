@@ -46,18 +46,39 @@ router.get('/new', (req, res, next) => {
     })
 })
 
+
+
+
 router.get('/:id', (req, res, next) => {  
-    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    if(!req.params.id) res.json({message: 'Missing argument : id'})
     Game.getOne(req.params.id)
         .then((response) => {
-            console.log(response)
-            res.format({
-                json: () => {
-                    res.json({
-                        game: response
-                    })
-                }
-            })
+            GamePlayer.getAll(response._id)
+                .then((games) => {              
+                    let playersId = []
+                    games.forEach(game => playersId.push(game.playerId))
+                    Player.getPlayerForGame(playersId)
+                        .then((playersInGame) => {
+                            let currentPlayer = playersInGame[Math.floor(Math.random() * playersInGame.length)]
+                            console.log(currentPlayer)
+                            res.format({
+                                json: () => {
+                                    res.json({
+                                        game: response,
+                                    })
+                                },
+                                html: () => {
+                                    res.render('get_game', {
+                                        game: response,
+                                        players: playersInGame,
+                                        playersId: playersId.length,
+                                        currentPlayer: currentPlayer
+
+                                    })
+                                }
+                            })
+                        })
+                }) 
         })
         .catch((err) => {
             res.json({
@@ -209,6 +230,9 @@ router.post('/:id/players', (req, res, next) => {
     if(!req.params.id) return res.send({ error : 'Id missing'})
     Game.getOne(req.params.id)
     .then((game) => {
+        if(game.status != 'draft') return res.json({
+            'error': 'Game is already started or ended'
+        })
         GamePlayer.getAll(game._id)
         .then((games) => {
             let gamesId = []
@@ -254,7 +278,6 @@ router.delete('/:id/players', (req, res, next) => {
 })
 
 router.post('/:id/shot', (req, res, next) => {
-    console.log('post route')
     if(!req.params.id) return res.send({ error : 'Id missing'})
     Game.getOne(req.params.id)
     .then((game) => {
