@@ -58,6 +58,7 @@ router.get('/:id', (req, res, next) => {
                     Player.getPlayerForGame(playersId)
                         .then((playersInGame) => {
                             let currentPlayer = playersInGame[Math.floor(Math.random() * playersInGame.length)]
+                            console.log(currentPlayer)
                             let randomShot = {
                                 playerId : currentPlayer._id,
                                 gameId : game._id,
@@ -232,9 +233,12 @@ router.post('/:id/players', (req, res, next) => {
     if(!req.params.id) return res.send({ error : 'Id missing'})
     Game.getOne(req.params.id)
     .then((game) => {
-        if(game.status != 'draft') return res.json({
-            'error': 'Game is already started or ended'
-        })
+        if(game.status != 'draft') {
+            return res.json({
+                'error': 'Game is already started or ended'
+            })
+            // return next(new CustomError(''))
+        }
         GamePlayer.getAll(game._id)
         .then((games) => {
             let gamesId = []

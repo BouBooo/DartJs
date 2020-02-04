@@ -24,12 +24,15 @@
           <td>{{name}}</td>
           <td>{{mode}}</td>
           <td>{{status}}</td>
-          <td class="d-flex justify-content-between">
-            <a href="/games/{{_id}}/edit" class="btn btn-primary">
+          <td class="d-flex justify-content-around">
+            <a href="/games/{{_id}}" class="btn btn-primary">
               Voir
             </a>
             <form method="POST" action="/games/{{_id}}?_method=DELETE">
-              <button class="btn btn-warning" type="submit">Supprimer</button>
+              <button class="btn btn-warning" type="submit">
+                <i class="fas fa-times"></i>
+                Supprimer
+              </button>
             </form>
           </td>
       </tr>

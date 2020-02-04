@@ -15,7 +15,10 @@ app.engine('hbs', hbs({extname: 'hbs', defaultLayout: 'layout', allowProtoMethod
 app.set('views', './views') 
 app.set('view engine', 'hbs')
 
-app.use(express.static(__dirname + '/assets'));
+/**
+ * Static files
+ */
+app.use('/', express.static(__dirname + '/assets'));
 
 
 /**
@@ -63,7 +66,7 @@ app.use((err, req, res, next) => {
         })
       },
       json: () => {
-        res.json("Error detected") 
+        res.staus(err.status).json(err) 
       }
     })
   })

@@ -40,8 +40,9 @@ module.exports = {
 
     // Get specific player
     getOne: async (id) => {
-        const player = await Player.findOne({_id:id})
-        return player
+        return await Player.findOne({_id:id})
+        // console.log(player)
+        // return player
       },
 
     // Create new player

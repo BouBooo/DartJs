@@ -50,7 +50,7 @@ router.get('/new', (req, res, next) => {
 })
 
 router.get('/:id', (req, res, next) => {  
-    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    if(!req.params.id) res.json({message: 'Missing argument : id'})
     Player.getOne(req.params.id)
         .then((response) => {
             res.format({
@@ -58,10 +58,13 @@ router.get('/:id', (req, res, next) => {
                     res.json({
                         player: response
                     })
+                },
+                html: () => {
+                    res.redirect(301, '/players/' + response._id + '/edit')
                 }
             })
         })
-        .catch((err) => {
+        .catch(() => {
             res.json({
                 message: 'No player found'
             })
@@ -132,7 +135,7 @@ router.patch('/:id', (req, res, next) => {
         .then((result) => {
             res.format({
                 html: () => { 
-                    res.redirect('/players') 
+                    res.redirect(301, '/players') 
                 },
                 json: () => { 
                     res.status(200).send({ player: result }) 
@@ -141,8 +144,6 @@ router.patch('/:id', (req, res, next) => {
         })
         .catch(next)
 })
-
-
 
 // Remove player & game_player associated
 router.delete('/:id', (req, res, next) => {
@@ -158,17 +159,17 @@ router.delete('/:id', (req, res, next) => {
                 Player.remove(req.params.id)
                 .then(() => {
                     GamePlayer.multpipleRemove(req.params.id)
-                        .then(() => {
-                            res.format({
-                                html: () => { 
-                                    res.redirect('/players') 
-                                },
-                                json: () => { 
-                                    res.status(204) 
-                                }
-                            })
+                    .then(() => {
+                        res.format({
+                            html: () => { 
+                                res.redirect('/players') 
+                            },
+                            json: () => { 
+                                res.status(204) 
+                            }
                         })
-                        .catch(next)
+                    })
+                    .catch(next)
                     
                 })
             }
