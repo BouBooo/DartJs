@@ -17,8 +17,20 @@ const Game = mongoose.model('game', new mongoose.Schema({
 module.exports = {
 
     // Get all games
-    getAll() {
-        return Game.find({})
+    getAll : async (query) => {
+      // Valid queries
+      let sortValid = ['name', 'status', 'mode']
+      let statusValid = ['draft', 'started', 'ended']
+
+      let limit = parseInt(query.limit)
+      let status = (statusValid.includes(query.status) ? query.status : statusValid)
+      console.log(statusValid)
+      let sort = query.sort
+      let reverse = (query.reverse ? -1 : 1)
+      
+      // FIX: Reverse is only valid if value is passed 
+      if(statusValid.includes(query.status)) return await Game.find({status: { $in : [status]}}).limit(limit).sort({ [sort]: 1, _id:[reverse]})
+      return await Game.find().limit(limit).sort({ [sort]: 1, _id:[reverse]})
     },
 
     // Get specific game

@@ -19,7 +19,7 @@ module.exports = {
     // Create new game_shot
     async create(gameId, params) {
         var params = { 
-            playerId: params.player_id,
+            playerId: params.playerId,
             gameId: gameId,
             multiplicator: params.multiplicator,
             sector: params.sector,

@@ -5,7 +5,15 @@
 
     <div class="main">
         <div class="darts d-flex justify-content-around my-5">
-            <img class="w-25" src="/images/darts.jpg"/>
+            <form action="/games/{{ game._id }}/shot" method="POST">
+                <input type="hidden" value="{{ randomShot.sector }}" name="sector">
+                <input type="hidden" value="{{ randomShot.multiplicator }}" name="multiplicator">
+                <input type="hidden" value="{{ randomShot.playerId }}" name="playerId">
+                <input type="hidden" value="{{ randomShot.gameId }}" name="gameId">
+                <button class="btn" type="submit">
+                    <img class="w-25" src="/images/darts.jpg"/>
+                </button>
+            </form>
         </div>
         <div class="my-5 d-flex justify-content-center">
             <form action="/games/{{ game._id }}/shot" method="POST">
@@ -13,7 +21,10 @@
                 <input type="hidden" value="0" name="multiplicator">
                 <input type="hidden" value="{{ currentPlayer._id }}" name="playerId">
                 <input type="hidden" value="{{ game._id }}" name="gameId">
-                <button type="submit" class="btn btn-warning">Cible manquée</button>
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-poop"></i>
+                    Cible manquée
+                </button>
             </form>
         </div>
         <div class="d-flex justify-content-around">
@@ -43,7 +54,7 @@
                 </tr>
                 <tr>
                     <td>{{ currentPlayer.name }}</td>
-                    <td>{{ currentPlayer.email }}</td>
+                    <td>2 ( TODO )</td>
                 </tr>
 
                 </table>

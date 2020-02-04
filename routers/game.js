@@ -6,7 +6,7 @@ const GameShot = require('../models/GameShot')
 const baseUrl = 'https://localhost/games'
 
 router.get('/', (req, res, next) => {  
-    Game.getAll()
+    Game.getAll(req.query)
     .then((result) => {
         res.format({
         html: () => {
@@ -47,32 +47,36 @@ router.get('/new', (req, res, next) => {
 })
 
 
-
-
 router.get('/:id', (req, res, next) => {  
     if(!req.params.id) res.json({message: 'Missing argument : id'})
     Game.getOne(req.params.id)
-        .then((response) => {
-            GamePlayer.getAll(response._id)
+        .then((game) => {
+            GamePlayer.getAll(game._id)
                 .then((games) => {              
                     let playersId = []
                     games.forEach(game => playersId.push(game.playerId))
                     Player.getPlayerForGame(playersId)
                         .then((playersInGame) => {
                             let currentPlayer = playersInGame[Math.floor(Math.random() * playersInGame.length)]
-                            console.log(currentPlayer)
+                            let randomShot = {
+                                playerId : currentPlayer._id,
+                                gameId : game._id,
+                                sector: Math.floor(Math.random() * 21),
+                                multiplicator: Math.floor(Math.random() * 3) + 1
+                            }
                             res.format({
                                 json: () => {
                                     res.json({
-                                        game: response,
+                                        game: game,
                                     })
                                 },
                                 html: () => {
                                     res.render('get_game', {
-                                        game: response,
+                                        game: game,
                                         players: playersInGame,
                                         playersId: playersId.length,
-                                        currentPlayer: currentPlayer
+                                        currentPlayer: currentPlayer,
+                                        randomShot: randomShot
 
                                     })
                                 }
@@ -117,6 +121,7 @@ router.post('/', (req, res, next) => {
 router.get('/:id/edit', (req, res, next) => {
     Game.getOne(req.params.id)
         .then((result) => {
+            // if (!result) return next(new Error('Error'))
             res.format({
                 json: () => {
                     res.json({
@@ -130,7 +135,7 @@ router.get('/:id/edit', (req, res, next) => {
                     res.render('get_games_patch', {
                         title: 'Modifier une partie',
                         game: result,
-                        button: 'Modifier',
+                        button: 'Sauvegarder',
                         id: result._id
                     })
                 },
@@ -292,7 +297,7 @@ router.post('/:id/shot', (req, res, next) => {
                             }) 
                         },
                         html : () => {
-                            res.redirect('/games/' + result.gameId + '/players')
+                            res.redirect('/games/' + result.gameId)
                         } 
                     })
                 })

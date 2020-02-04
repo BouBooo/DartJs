@@ -52,11 +52,6 @@ app.get('/', (req, res) => {
     })
 })
 
-// Game page
-app.get('/games', (req, res) => {
-    res.send('Games page')
-});
-
 //MIDDLEWARE 404
 
 app.use((err, req, res, next) => {

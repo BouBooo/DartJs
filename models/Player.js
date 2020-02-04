@@ -21,9 +21,13 @@ module.exports = {
     
     // Get all players
     getAll : async (query) => {
+      let sortValid = ['name', 'email', 'gameWin', 'gameLost']
+      if(!sortValid.includes(query.sort)) console.log('sort invalid')
       let limit = parseInt(query.limit)
       let sort = query.sort
-      return await Player.find({}).limit(limit).sort({ [sort]: 1}) 
+      let reverse = (query.reverse ? -1 : 1)
+      // FIX: Reverse is only valid if value is passed 
+      return await Player.find().limit(limit).sort({ [sort]: 1, _id:[reverse]}) 
     },
 
     getPlayerForGame(idArray) {

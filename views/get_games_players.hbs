@@ -1,4 +1,4 @@
-<h1 class="text-center my-5">Partie : <b>{{ game.mode }}</b> ({{ game._id}})</h1>
+<h1 class="text-center my-5">Partie : <b>{{ game.mode }}</b></h1>
 
 <div class="mb-5 d-flex justify-content-around">
     <a href="/games" class="btn btn-primary btn-lg">Gérer les parties</a>
@@ -45,7 +45,6 @@
                     <input type="hidden" value="{{ ../game._id }}" name="game_id">
                     <input type="hidden" value="{{ _id }}" name="player_id">
                     <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
                     Ajouter
                     </button>
                 </form>
