@@ -267,26 +267,40 @@ router.post('/:id/players', (req, res, next) => {
     })
 })
 
-// req.query.id.forEach(id => console.log(id)
 
 router.delete('/:id/players', (req, res, next) => {
     Game.getOne(req.params.id)
         .then((game) => {
             if(game.status != 'draft') return res.json({'error' : 'Cannot delete player in game with status : ' + game.status})
-            if(!req.query.id) return res.json({'error' : 'Id missing for remove a player from this room.'})
-            req.query.id.forEach(id => 
-                GamePlayer.remove(id)
+            if(!req.query.id && !req.body.id) return res.json({'error' : 'Id missing for remove a player from this room.'})
+            // let idToDelete = !req.query.id ? req.body.id : req.query.id 
+            if(!req.body.id) {
+                req.query.id.forEach(id => 
+                    GamePlayer.remove(id)
+                    .then(() => {
+                        res.format({
+                            html: () => { 
+                                res.redirect(301, '/games') 
+                            },
+                            json: () => { 
+                                res.status(204) 
+                            }
+                        })
+                    })
+                )
+            } else {
+                GamePlayer.remove(req.body.id)
                 .then(() => {
                     res.format({
                         html: () => { 
-                            res.redirect('/games') 
+                            res.redirect(301, '/games/' + game._id + '/players') 
                         },
                         json: () => { 
                             res.status(204) 
                         }
                     })
                 })
-            )
+            }
         })
 })
 

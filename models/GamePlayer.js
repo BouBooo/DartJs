@@ -30,7 +30,6 @@ module.exports = {
 
     // Create new game
     async create(playerId, gameId) {
-        // console.log(params.game_id, params.player_id)
         var params = { 
             playerId: playerId,
             gameId: gameId,

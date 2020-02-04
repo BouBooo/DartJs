@@ -18,8 +18,8 @@
                 <td>{{name}}</td>
                 <td>{{email}}</td>
                 <td class="d-flex justify-content-between">
-                <form method="GET" action="/games/{{../game._id}}/players?_method=DELETE">
-                    <input type="hidden" value="{{ _id }}">
+                <form method="POST" action="/games/{{../game._id}}/players?_method=DELETE">
+                    <input type="hidden" value="{{ _id }}" name="id">
                     <button class="btn btn-warning" type="submit">Supprimer</button>
                 </form>
                 </td>
