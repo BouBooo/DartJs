@@ -143,22 +143,22 @@ router.patch('/:id', (req, res, next) => {
 })
 
 
+
+// Remove player & game_player associated
 router.delete('/:id', (req, res, next) => {
     if(!req.params.id) res.json({message: 'Missing argument : id'}) 
     GamePlayer.getGameForPlayer(req.params.id) 
     .then((playerGame) => {
-        console.log(playerGame)
         Game.getOne(playerGame.gameId)
         .then((game) => {
             if(game.status != 'draft') {
                 return res.json({message: 'Player not deletable. Game status :' + game.status})
             } 
             else {
-                // TODO : Remove game_players relations
                 Player.remove(req.params.id)
-                .then((result) => {
+                .then(() => {
                     GamePlayer.multpipleRemove(req.params.id)
-                        .then((response) => {
+                        .then(() => {
                             res.format({
                                 html: () => { 
                                     res.redirect('/players') 

@@ -96,7 +96,6 @@ router.get('/:id', (req, res, next) => {
  * HTML: Redirect to /games/:id
  */
 router.post('/', (req, res, next) => {
-    console.log(req.body)
     if(!req.body.name || !req.body.mode) return res.send({ error : 'Missing field name or mode'})
     Game.create(req.body)
         .then((result) => {
@@ -121,7 +120,6 @@ router.post('/', (req, res, next) => {
 router.get('/:id/edit', (req, res, next) => {
     Game.getOne(req.params.id)
         .then((result) => {
-            // if (!result) return next(new Error('Error'))
             res.format({
                 json: () => {
                     res.json({
@@ -231,7 +229,6 @@ router.get('/:id/players', (req, res, err) => {
  * HTML: Redirect to /games/:id
  */
 router.post('/:id/players', (req, res, next) => {
-    console.log('post route')
     if(!req.params.id) return res.send({ error : 'Id missing'})
     Game.getOne(req.params.id)
     .then((game) => {
@@ -264,21 +261,26 @@ router.post('/:id/players', (req, res, next) => {
     })
 })
 
+// req.query.id.forEach(id => console.log(id)
+
 router.delete('/:id/players', (req, res, next) => {
     Game.getOne(req.params.id)
         .then((game) => {
-            console.log(game)
-            if(game.status != 'draft') return res.json({'error' : 'Game already started or is ended'})
+            if(game.status != 'draft') return res.json({'error' : 'Cannot delete player in game with status : ' + game.status})
             if(!req.query.id) return res.json({'error' : 'Id missing for remove a player from this room.'})
-            GamePlayer.remove(req.query.id)
-            res.format({
-                html: () => { 
-                    res.redirect('/games') 
-                },
-                json: () => { 
-                    res.status(204) 
-                }
-            })
+            req.query.id.forEach(id => 
+                GamePlayer.remove(id)
+                .then(() => {
+                    res.format({
+                        html: () => { 
+                            res.redirect('/games') 
+                        },
+                        json: () => { 
+                            res.status(204) 
+                        }
+                    })
+                })
+            )
         })
 })
 

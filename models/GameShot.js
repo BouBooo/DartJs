@@ -24,10 +24,10 @@ module.exports = {
             multiplicator: params.multiplicator,
             sector: params.sector,
             createdAt: Date.now()
-          }
-      
-          let gameShot = new GameShot(params)
-          gameShot.save()
-          return gameShot
+        }
+    
+        let gameShot = new GameShot(params)
+        gameShot.save()
+        return gameShot
     },
 }

@@ -25,7 +25,6 @@ module.exports = {
     },
 
     getGameForPlayer(playerId) {
-        console.log(playerId)
         return GamePlayer.findOne({playerId: playerId})
     },
 
