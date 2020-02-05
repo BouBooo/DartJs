@@ -66,7 +66,7 @@ app.use((err, req, res, next) => {
         })
       },
       json: () => {
-        res.staus(err.status).json(err) 
+        res.status(err.status).json(err) 
       }
     })
   })
