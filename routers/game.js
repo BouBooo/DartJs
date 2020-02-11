@@ -6,7 +6,7 @@ const GamePlayer = require('../models/GamePlayer')
 const GameShot = require('../models/GameShot')
 const baseUrl = 'https://localhost/games'
 const PlayerNotDeletable = require('../errors/PlayerNotDeletable')
-const PlayerNotAddableGameStarted = require('../errors/PlayerNotAddableGameStarted')
+const PlayerNotAddable = require('../errors/PlayerNotAddable')
 const ApiNotAvailable = require('../errors/ApiNotAvailable')
 const GamePlayerMissing = require('../errors/GamePlayerMissing')
 const InvalidFormat = require('../errors/InvalidFormat')
@@ -219,33 +219,37 @@ router.post('/:id/players', (req, res, next) => {
     if(!req.params.id) return res.send({ error : 'Id missing'})
     Game.getOne(req.params.id)
     .then((game) => {
-        if(game.status != 'draft') {
-            return res.json(new PlayerNotAddableGameStarted())
-        }
+        if(game.status != 'draft') { return res.json(new PlayerNotAddableGameStarted()) }
         GamePlayer.getAll(game._id)
         .then((games) => {
             let gamesId = []
-            games.forEach(game => gamesId.push(game.gameId))
+            games.forEach(game => { 
+                gamesId.push(game.gameId)
+            })
             if(gamesId.length >= 4) return res.json({
                 'error': 'Already 4 players in this room'
             })
             let playersId = req.body.player_id.split(',')
-            playersId.forEach(player => 
-                GamePlayer.create(player, game._id)
-                    .then((result) => {
-                        res.format({
-                            json: () => { 
-                                res.status(201).send({
-                                    player_added: result
-                                }) 
-                            },
-                            html : () => {
-                                res.redirect('/games/' + result.gameId + '/players')
-                            } 
+            GamePlayer.isAlreadyInGame(playersId)
+            .then((result) => {
+                if(result.length > 0) return res.json(new PlayerNotAddable)
+                playersId.forEach(player => 
+                    GamePlayer.create(player, game._id)
+                        .then((result) => {
+                            res.format({
+                                json: () => { 
+                                    res.status(201).send({
+                                        player_added: result
+                                    }) 
+                                },
+                                html : () => {
+                                    res.redirect('/games/' + result.gameId + '/players')
+                                } 
+                            })
                         })
-                    })
-                    .catch(next)
+                        .catch(next)
                 ) 
+            })
         })
     })
 })

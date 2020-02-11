@@ -28,6 +28,10 @@ module.exports = {
         return GamePlayer.findOne({playerId: playerId})
     },
 
+    isAlreadyInGame(playersId) {
+        return GamePlayer.find({playerId: { $in : playersId }})
+    },
+
     // Create new game
     async create(playerId, gameId) {
         var params = { 
