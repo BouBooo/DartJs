@@ -1,1 +1,1 @@
-db.game.find()
+db.game_shots.remove({})

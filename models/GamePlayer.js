@@ -46,7 +46,7 @@ module.exports = {
           return newGame
     },
 
-    multpipleRemove: async (id) => {
+    multipleRemove: async (id) => {
         return GamePlayer.remove({playerId: id})
     },
 

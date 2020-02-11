@@ -4,6 +4,9 @@ const Game = require('../models/Game')
 const GamePlayer = require('../models/GamePlayer')
 const baseUrl = 'https://localhost/players'
 const validator = require('validator')
+const NotFound = require('../errors/NotFound')
+const ApiNotAvailable = require('../errors/ApiNotAvailable')
+const PlayerNotDeletable = require('../errors/PlayerNotDeletable')
 
 
 /**
@@ -13,7 +16,6 @@ const validator = require('validator')
 router.get('/', (req, res, next) => {  
     Player.getAll(req.query)
         .then((response) => {
-            console.log(response)
             res.format({
                 json: () => {
                     res.json({
@@ -41,12 +43,7 @@ router.get('/new', (req, res, next) => {
             })
         },
         json: () => {
-            res.json({
-                error: {
-                    type: '406 NOT_API_AVAILABLE',
-                    message: 'Not API available for path : ' + baseUrl + req.path
-                }
-            })
+            return res.json(new ApiNotAvailable)
         }
     })
 })
@@ -81,7 +78,7 @@ router.post('/', (req, res, next) => {
     if(!req.body.name || !req.body.email) return res.send({ error : 'Missing field name or email'})
     Player.checkValidEmail(req.body.email) 
     .then((alreadyExists) => {
-        if(alreadyExists.length > 0) return res.send({message : 'Email already exists'})
+        if(alreadyExists.length > 0) return new NotFound()
         if(!validator.isEmail(req.body.email)) return res.send({message : 'Email not correctly formatted'})
         Player.create(req.body)
         .then((player) => {
@@ -98,7 +95,7 @@ router.post('/', (req, res, next) => {
     })
     .catch(() => {
         res.json({
-            message : 'Email already exists'
+            message : 'error'
         })
     })
 })
@@ -113,12 +110,7 @@ router.get('/:id/edit', (req, res, next) => {
         .then((result) => {
             res.format({
                 json: () => {
-                    res.json({
-                        error: {
-                            type: '406 NOT_API_AVAILABLE',
-                            message: 'Not API available for path : ' + baseUrl + req.path
-                        }
-                    })
+                    return res.json(new ApiNotAvailable)
                 },
                 html: () => {
                     res.render('get_players_patch', {
@@ -142,13 +134,13 @@ router.get('/:id/edit', (req, res, next) => {
 router.patch('/:id', (req, res, next) => {
     if(!req.params.id) res.json({message: 'Missing argument : id'}) 
     Player.update(req.params.id, req.body)
-        .then((result) => {
+        .then((player) => {
             res.format({
                 html: () => { 
                     res.redirect(301, '/players') 
                 },
                 json: () => { 
-                    res.status(200).send({ player: result }) 
+                    res.status(200).send({ player }) 
                 }
             })
         })
@@ -163,12 +155,12 @@ router.delete('/:id', (req, res, next) => {
         Game.getOne(playerGame.gameId)
         .then((game) => {
             if(game.status != 'draft') {
-                return res.json({message: 'Player not deletable. Game status :' + game.status})
+                return res.json(new PlayerNotDeletable())
             } 
             else {
                 Player.remove(req.params.id)
                 .then(() => {
-                    GamePlayer.multpipleRemove(req.params.id)
+                    GamePlayer.multipleRemove(req.params.id)
                     .then(() => {
                         res.format({
                             html: () => { 

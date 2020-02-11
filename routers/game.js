@@ -1,9 +1,18 @@
 const router = require('express').Router()
 const Game = require('../models/Game')
 const Player = require('../models/Player')
+const functions = require('../functions/player')
 const GamePlayer = require('../models/GamePlayer')
 const GameShot = require('../models/GameShot')
 const baseUrl = 'https://localhost/games'
+const PlayerNotDeletable = require('../errors/PlayerNotDeletable')
+const PlayerNotAddableGameStarted = require('../errors/PlayerNotAddableGameStarted')
+const ApiNotAvailable = require('../errors/ApiNotAvailable')
+const GamePlayerMissing = require('../errors/GamePlayerMissing')
+const InvalidFormat = require('../errors/InvalidFormat')
+const GameNotStarted = require('../errors/GameNotStarted')
+const GameEnded = require('../errors/GameEnded')
+
 
 router.get('/', (req, res, next) => {  
     Game.getAll(req.query)
@@ -30,18 +39,10 @@ router.get('/', (req, res, next) => {
 router.get('/new', (req, res, next) => {  
     res.format({
         html: () => {
-            res.render('get_games_new', {
-                title: 'Créer une partie',
-                button: 'Créer',
-            })
+            res.render('get_games_new')
         },
         json: () => {
-            res.json({
-                error: {
-                    type: '406 NOT_API_AVAILABLE',
-                    message: 'Not API available for path : ' + baseUrl + req.path
-                }
-            })
+            res.json(new ApiNotAvailable())
         }
     })
 })
@@ -55,21 +56,14 @@ router.get('/:id', (req, res, next) => {
                 .then((games) => {          
                     let playersId = []
                     games.forEach(game => playersId.push(game.playerId))
-                    if(games.length === 0) return res.send({ alert : 'No player in this game.', game: game})
+                    if(games.length === 0) return res.json(new GamePlayerMissing())
                     Player.getPlayerForGame(playersId)
                         .then((playersInGame) => {
-                            let currentPlayer = playersInGame[Math.floor(Math.random() * playersInGame.length)]
-                            let randomShot = {
-                                playerId : currentPlayer._id,
-                                gameId : game._id,
-                                sector: Math.floor(Math.random() * 21),
-                                multiplicator: Math.floor(Math.random() * 3) + 1
-                            }
+                            let currentPlayer = functions.createCurrentPlayer(playersInGame)
+                            let randomShot = functions.createRandomShot(currentPlayer, game)
                             res.format({
                                 json: () => {
-                                    res.json({
-                                        game: game
-                                    })
+                                    res.json(game)
                                 },
                                 html: () => {
                                     res.render('get_game', {
@@ -96,7 +90,7 @@ router.get('/:id', (req, res, next) => {
  * HTML: Redirect to /games/:id
  */
 router.post('/', (req, res, next) => {
-    if(!req.body.name || !req.body.mode) return res.send({ error : 'Missing field name or mode'})
+    if(!req.body.name || !req.body.mode) return res.json(new InvalidFormat())
     Game.create(req.body)
         .then((result) => {
             res.format({
@@ -122,12 +116,7 @@ router.get('/:id/edit', (req, res, next) => {
         .then((result) => {
             res.format({
                 json: () => {
-                    res.json({
-                        error: {
-                            type: '406 NOT_API_AVAILABLE',
-                            message: 'Not API available for path : ' + baseUrl + req.path
-                        }
-                    })
+                    res.json(new ApiNotAvailable())
                 },
                 html: () => {
                     res.render('get_games_patch', {
@@ -184,7 +173,6 @@ router.delete('/:id', (req, res, next) => {
 // Game Players
 
 router.get('/:id/players', (req, res, err) => {
-    console.log('get route')
     if(!req.params.id) res.json({message: 'Missing argument : id'}) 
     Game.getOne(req.params.id)
         .then((response) => {
@@ -192,7 +180,6 @@ router.get('/:id/players', (req, res, err) => {
             .then((games) => {
                 let playersId = []
                 games.forEach(game => playersId.push(game.playerId))
-                    // console.log(playersId)
                     Player.getPlayerForGame(playersId)
                         .then((playersInGame) => {
                             Player.getPlayerNotInGame(playersId)
@@ -233,10 +220,7 @@ router.post('/:id/players', (req, res, next) => {
     Game.getOne(req.params.id)
     .then((game) => {
         if(game.status != 'draft') {
-            return res.json({
-                'error': 'Game is already started or ended'
-            })
-            // return next(new CustomError(''))
+            return res.json(new PlayerNotAddableGameStarted())
         }
         GamePlayer.getAll(game._id)
         .then((games) => {
@@ -246,7 +230,6 @@ router.post('/:id/players', (req, res, next) => {
                 'error': 'Already 4 players in this room'
             })
             let playersId = req.body.player_id.split(',')
-            console.log(playersId)
             playersId.forEach(player => 
                 GamePlayer.create(player, game._id)
                     .then((result) => {
@@ -271,9 +254,8 @@ router.post('/:id/players', (req, res, next) => {
 router.delete('/:id/players', (req, res, next) => {
     Game.getOne(req.params.id)
         .then((game) => {
-            if(game.status != 'draft') return res.json({'error' : 'Cannot delete player in game with status : ' + game.status})
+            if(game.status != 'draft') return res.json(new PlayerNotDeletable())
             if(!req.query.id && !req.body.id) return res.json({'error' : 'Id missing for remove a player from this room.'})
-            // let idToDelete = !req.query.id ? req.body.id : req.query.id 
             if(!req.body.id) {
                 req.query.id.forEach(id => 
                     GamePlayer.remove(id)
@@ -308,8 +290,8 @@ router.post('/:id/shot', (req, res, next) => {
     if(!req.params.id) return res.send({ error : 'Id missing'})
     Game.getOne(req.params.id)
     .then((game) => {
-        if(game.status == 'draft') return res.json({'error' : 'GAME_NOT_STARTED'})
-        if(game.status == 'ended') return res.json({'error' : 'GAME_ENDED'})
+        if(game.status == 'draft') return res.json(new GameNotStarted())
+        if(game.status == 'ended') return res.json(new GameEnded())
         GameShot.create(game._id, req.body)
                 .then((result) => {
                     res.format({

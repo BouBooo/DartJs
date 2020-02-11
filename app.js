@@ -42,15 +42,10 @@ app.use('/games', gameRouter)
 app.get('/', (req, res) => {
     res.format({
         html: () => {
-            res.redirect('/games')
+          res.redirect('/games')
         },
         json: () => {
-            res.json({
-                error : {
-                    type: '406 NOT_API_AVAILABLE',
-                    message: 'Not API available for path : ' + req.path
-                }
-            })
+          res.json(new ApiNotAvailable)
         }
     })
 })
@@ -60,7 +55,6 @@ app.get('/', (req, res) => {
 app.use((err, req, res, next) => {
     res.format({
       html: () => {
-        console.log(err)
         res.render("error", {
           error: err
         })
