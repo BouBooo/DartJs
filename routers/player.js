@@ -13,6 +13,7 @@ const validator = require('validator')
 router.get('/', (req, res, next) => {  
     Player.getAll(req.query)
         .then((response) => {
+            console.log(response)
             res.format({
                 json: () => {
                     res.json({
@@ -83,12 +84,10 @@ router.post('/', (req, res, next) => {
         if(alreadyExists.length > 0) return res.send({message : 'Email already exists'})
         if(!validator.isEmail(req.body.email)) return res.send({message : 'Email not correctly formatted'})
         Player.create(req.body)
-        .then((result) => {
+        .then((player) => {
             res.format({
                 json: () => { 
-                    res.status(201).send({
-                        player: result
-                    }) 
+                    res.status(201).json(player) 
                 },
                 html : () => {
                     res.redirect('/players/' + result._id + '/edit')
