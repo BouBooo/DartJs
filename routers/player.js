@@ -3,6 +3,7 @@ const Player = require('../models/Player')
 const Game = require('../models/Game')
 const GamePlayer = require('../models/GamePlayer')
 const baseUrl = 'https://localhost/players'
+const validator = require('validator')
 
 
 /**
@@ -77,7 +78,11 @@ router.get('/:id', (req, res, next) => {
  */
 router.post('/', (req, res, next) => {
     if(!req.body.name || !req.body.email) return res.send({ error : 'Missing field name or email'})
-    Player.create(req.body)
+    Player.checkValidEmail(req.body.email) 
+    .then((alreadyExists) => {
+        if(alreadyExists.length > 0) return res.send({message : 'Email already exists'})
+        if(!validator.isEmail(req.body.email)) return res.send({message : 'Email not correctly formatted'})
+        Player.create(req.body)
         .then((result) => {
             res.format({
                 json: () => { 
@@ -91,6 +96,12 @@ router.post('/', (req, res, next) => {
             })
         })
         .catch(next)
+    })
+    .catch(() => {
+        res.json({
+            message : 'Email already exists'
+        })
+    })
 })
 
 

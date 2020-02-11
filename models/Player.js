@@ -36,13 +36,15 @@ module.exports = {
 
     getPlayerNotInGame(idArray) {
       return Player.find({_id: { $nin : idArray }})
-  },
+    },
+
+    checkValidEmail(email) {
+      return Player.find({email : email})
+    },
 
     // Get specific player
     getOne: async (id) => {
         return await Player.findOne({_id:id})
-        // console.log(player)
-        // return player
       },
 
     // Create new player
