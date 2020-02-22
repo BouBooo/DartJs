@@ -41,6 +41,7 @@ module.exports = {
 
     // Create new game
     async create(params) {
+        console.log(params)
         var params = { 
             name: params.name,
             mode: params.mode,

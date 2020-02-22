@@ -1,1 +1,1 @@
-db.game_shots.remove({})
+db.game_players.remove({})

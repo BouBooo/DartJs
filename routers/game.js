@@ -12,6 +12,7 @@ const GamePlayerMissing = require('../errors/GamePlayerMissing')
 const InvalidFormat = require('../errors/InvalidFormat')
 const GameNotStarted = require('../errors/GameNotStarted')
 const GameEnded = require('../errors/GameEnded')
+const GameIsFull = require('../errors/GameIsFull')
 
 
 router.get('/', (req, res, next) => {  
@@ -49,7 +50,7 @@ router.get('/new', (req, res, next) => {
 
 
 router.get('/:id', (req, res, next) => {  
-    if(!req.params.id) res.json({message: 'Missing argument : id'})
+    if(!req.params.id) res.json(new ArgumentMissing())
     Game.getOne(req.params.id)
         .then((game) => {
             GamePlayer.getAll(game._id)
@@ -59,6 +60,7 @@ router.get('/:id', (req, res, next) => {
                     if(games.length === 0) return res.json(new GamePlayerMissing())
                     Player.getPlayerForGame(playersId)
                         .then((playersInGame) => {
+                            console.log(playersInGame)
                             let currentPlayer = functions.createCurrentPlayer(playersInGame)
                             let randomShot = functions.createRandomShot(currentPlayer, game)
                             res.format({
@@ -138,12 +140,13 @@ router.get('/:id/edit', (req, res, next) => {
  * HTML: Redirect to /games
  */
 router.patch('/:id', (req, res, next) => {
-    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    if(!req.params.id) res.json(new ArgumentMissing()) 
     Game.update(req.params.id, req.body)
         .then((result) => {
+            console.log(result)
             res.format({
                 html: () => { 
-                    res.redirect('/games') 
+                    res.redirect('/games/' + req.params.id) 
                 },
                 json: () => { 
                     res.status(200).send({ game: result }) 
@@ -154,7 +157,7 @@ router.patch('/:id', (req, res, next) => {
 })
 
 router.delete('/:id', (req, res, next) => {
-    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    if(!req.params.id) res.json(new ArgumentMissing()) 
     Game.remove(req.params.id)
         .then(() => {
             res.format({
@@ -173,7 +176,7 @@ router.delete('/:id', (req, res, next) => {
 // Game Players
 
 router.get('/:id/players', (req, res, err) => {
-    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    if(!req.params.id) res.json(new ArgumentMissing()) 
     Game.getOne(req.params.id)
         .then((response) => {
             GamePlayer.getAll(response._id)
@@ -216,7 +219,7 @@ router.get('/:id/players', (req, res, err) => {
  * HTML: Redirect to /games/:id
  */
 router.post('/:id/players', (req, res, next) => {
-    if(!req.params.id) return res.send({ error : 'Id missing'})
+    if(!req.params.id) return res.send(new ArgumentMissing())
     Game.getOne(req.params.id)
     .then((game) => {
         if(game.status != 'draft') { return res.json(new PlayerNotAddableGameStarted()) }
@@ -226,9 +229,7 @@ router.post('/:id/players', (req, res, next) => {
             games.forEach(game => { 
                 gamesId.push(game.gameId)
             })
-            if(gamesId.length >= 4) return res.json({
-                'error': 'Already 4 players in this room'
-            })
+            if(gamesId.length >= 4) return res.json(new GameIsFull())
             let playersId = req.body.player_id.split(',')
             GamePlayer.isAlreadyInGame(playersId)
             .then((result) => {
@@ -291,7 +292,7 @@ router.delete('/:id/players', (req, res, next) => {
 })
 
 router.post('/:id/shot', (req, res, next) => {
-    if(!req.params.id) return res.send({ error : 'Id missing'})
+    if(!req.params.id) return res.send(new ArgumentMissing())
     Game.getOne(req.params.id)
     .then((game) => {
         if(game.status == 'draft') return res.json(new GameNotStarted())

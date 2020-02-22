@@ -42,7 +42,6 @@
                 <td>{{email}}</td>
                 <td class="d-flex justify-content-between">
                 <form method="POST" action="/games/{{ ../game._id }}/players">
-                    {{!-- <input type="hidden" value="{{ ../game._id }}" name="game_id"> --}}
                     <input type="hidden" value="{{ _id }}" name="player_id">
                     <button type="submit" class="btn btn-primary">
                     Ajouter
