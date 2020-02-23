@@ -50,8 +50,8 @@ class Board {
             let nbrPlayers = result.playersChoice
             for (let i = 0; i < nbrPlayers; i++) {
                 let player = new Player(i, 'Player from cli ' + i)
+                let newPlayer = PlayerModel.create(player)
                 this.players.push(player)
-                PlayerModel.create(player)
                 
             }
             this.tour()
@@ -83,6 +83,7 @@ class Board {
                 player.score+=1
                 player.lastScore.push(player.score)
                 console.table(player.lastScore)
+                // console.log(player._id)
             } else {
                 console.log('T\'as raté ton tir boloss')
             }

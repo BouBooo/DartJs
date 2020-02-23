@@ -43,11 +43,11 @@ module.exports = {
             order: null,
             inGame: true,
             createdAt: Date.now()
-          }
-      
-          let newGame = new GamePlayer(params)
-          newGame.save()
-          return newGame
+        }
+    
+        let newGame = new GamePlayer(params)
+        newGame.save()
+        return newGame
     },
 
     multipleRemove: async (id) => {

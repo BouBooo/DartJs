@@ -5,7 +5,7 @@
 
     <div class="main">
         <div class="darts d-flex justify-content-around my-5">
-            <form action="/games/{{ game._id }}/shot" method="POST">
+            <form action="/games/{{ game._id }}/shots" method="POST">
                 <input type="hidden" value="{{ randomShot.sector }}" name="sector">
                 <input type="hidden" value="{{ randomShot.multiplicator }}" name="multiplicator">
                 <input type="hidden" value="{{ randomShot.playerId }}" name="playerId">

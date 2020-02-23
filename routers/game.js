@@ -184,26 +184,26 @@ router.get('/:id/players', (req, res, err) => {
                 let playersId = []
                 games.forEach(game => playersId.push(game.playerId))
                     Player.getPlayerForGame(playersId)
-                        .then((playersInGame) => {
-                            Player.getPlayerNotInGame(playersId)
-                                .then((playersNotInGame) => {
-                                    res.format({
-                                        json: () => {
-                                            res.json({
-                                                players: playersInGame
-                                            })
-                                        },
-                                        html: () => {
-                                            res.render('get_games_players', {
-                                                game: response,
-                                                players: playersInGame,
-                                                noPlayers: playersNotInGame,
-                                                playersId: playersId.length
-                                            })
-                                        }
+                    .then((playersInGame) => {
+                        Player.getPlayerNotInGame(playersId)
+                        .then((playersNotInGame) => {
+                            res.format({
+                                json: () => {
+                                    res.json({
+                                        players: playersInGame
                                     })
-                                })
+                                },
+                                html: () => {
+                                    res.render('get_games_players', {
+                                        game: response,
+                                        players: playersInGame,
+                                        noPlayers: playersNotInGame,
+                                        playersId: playersId.length
+                                    })
+                                }
+                            })
                         })
+                    })
                 })
                 
         })
@@ -236,19 +236,19 @@ router.post('/:id/players', (req, res, next) => {
                 if(result.length > 0) return res.json(new PlayerNotAddable)
                 playersId.forEach(player => 
                     GamePlayer.create(player, game._id)
-                        .then((result) => {
-                            res.format({
-                                json: () => { 
-                                    res.status(201).send({
-                                        player_added: result
-                                    }) 
-                                },
-                                html : () => {
-                                    res.redirect('/games/' + result.gameId + '/players')
-                                } 
-                            })
+                    .then((result) => {
+                        res.format({
+                            json: () => { 
+                                res.status(201).send({
+                                    player_added: result
+                                }) 
+                            },
+                            html : () => {
+                                res.redirect('/games/' + result.gameId + '/players')
+                            } 
                         })
-                        .catch(next)
+                    })
+                    .catch(next)
                 ) 
             })
         })
@@ -275,7 +275,9 @@ router.delete('/:id/players', (req, res, next) => {
                         })
                     })
                 )
-            } else {
+            } 
+            // To handle gamePlayer delete from web app
+            else {
                 GamePlayer.remove(req.body.id)
                 .then(() => {
                     res.format({
@@ -291,26 +293,26 @@ router.delete('/:id/players', (req, res, next) => {
         })
 })
 
-router.post('/:id/shot', (req, res, next) => {
+router.post('/:id/shots', (req, res, next) => {
     if(!req.params.id) return res.send(new ArgumentMissing())
     Game.getOne(req.params.id)
     .then((game) => {
         if(game.status == 'draft') return res.json(new GameNotStarted())
         if(game.status == 'ended') return res.json(new GameEnded())
         GameShot.create(game._id, req.body)
-                .then((result) => {
-                    res.format({
-                        json: () => { 
-                            res.status(201).send({
-                                player_added: result
-                            }) 
-                        },
-                        html : () => {
-                            res.redirect('/games/' + result.gameId)
-                        } 
-                    })
-                })
-                .catch(next)
+        .then((result) => {
+            res.format({
+                json: () => { 
+                    res.status(201).send({
+                        player_added: result
+                    }) 
+                },
+                html : () => {
+                    res.redirect('/games/' + result.gameId)
+                } 
+            })
+        })
+        .catch(next)
     })
 })
 
