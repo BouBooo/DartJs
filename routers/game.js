@@ -7,6 +7,7 @@ const GameShot = require('../models/GameShot')
 const baseUrl = 'https://localhost/games'
 const PlayerNotDeletable = require('../errors/PlayerNotDeletable')
 const PlayerNotAddable = require('../errors/PlayerNotAddable')
+const PlayerNotAddableGameStarted = require('../errors/PlayerNotAddableGameStarted')
 const ApiNotAvailable = require('../errors/ApiNotAvailable')
 const GamePlayerMissing = require('../errors/GamePlayerMissing')
 const InvalidFormat = require('../errors/InvalidFormat')
@@ -19,17 +20,15 @@ router.get('/', (req, res, next) => {
     Game.getAll(req.query)
     .then((result) => {
         res.format({
-        html: () => {
-            res.render('games', {
-                games: result
-            })
-        },
-        json: () => {
-            res.json({
-                games: result
-            })
-        }
-    })  
+            html: () => {
+                res.render('games', {
+                    games: result
+                })
+            },
+            json: () => {
+                res.json(result)
+            }
+        })  
     })   
 })
 
@@ -43,7 +42,9 @@ router.get('/new', (req, res, next) => {
             res.render('get_games_new')
         },
         json: () => {
-            res.json(new ApiNotAvailable())
+            res.status(406).json({
+                error : new ApiNotAvailable()
+            })
         }
     })
 })
@@ -58,24 +59,30 @@ router.get('/:id', (req, res, next) => {
                     let playersId = []
                     games.forEach(game => playersId.push(game.playerId))
                     if(games.length === 0) return res.json(new GamePlayerMissing())
+                    // res.redirect(301, '/games/' + game._id + '/players')
+                    
                     Player.getPlayerForGame(playersId)
                         .then((playersInGame) => {
-                            console.log(playersInGame)
                             let currentPlayer = functions.createCurrentPlayer(playersInGame)
                             let randomShot = functions.createRandomShot(currentPlayer, game)
-                            res.format({
-                                json: () => {
-                                    res.json(game)
-                                },
-                                html: () => {
-                                    res.render('get_game', {
-                                        game: game,
-                                        players: playersInGame,
-                                        playersId: playersId.length,
-                                        currentPlayer: currentPlayer,
-                                        randomShot: randomShot
-                                    })
-                                }
+                            GameShot.getAll(game)
+                            .then((gameShots) => {
+                                console.log(game)
+                                res.format({
+                                    json: () => {
+                                        res.json(game)
+                                    },
+                                    html: () => {
+                                        res.render('get_game', {
+                                            game: game,
+                                            players: playersInGame,
+                                            playersId: playersId.length,
+                                            currentPlayer: currentPlayer,
+                                            randomShot: randomShot,
+                                            gameShots: gameShots
+                                        })
+                                    }
+                                })
                             })
                         })
                 }) 
@@ -94,15 +101,15 @@ router.get('/:id', (req, res, next) => {
 router.post('/', (req, res, next) => {
     if(!req.body.name || !req.body.mode) return res.json(new InvalidFormat())
     Game.create(req.body)
-        .then((result) => {
+        .then((game) => {
             res.format({
                 json: () => { 
                     res.status(201).send({
-                        game: result
+                        game: game
                     }) 
                 },
                 html : () => {
-                    res.redirect('/games/' + result._id + '/edit')
+                    res.redirect(301, '/games/' + game._id + '/edit')
                 } 
             })
         })
@@ -118,7 +125,9 @@ router.get('/:id/edit', (req, res, next) => {
         .then((result) => {
             res.format({
                 json: () => {
-                    res.json(new ApiNotAvailable())
+                    res.status(406).json({
+                        error : new ApiNotAvailable()
+                    })
                 },
                 html: () => {
                     res.render('get_games_patch', {
@@ -142,18 +151,18 @@ router.get('/:id/edit', (req, res, next) => {
 router.patch('/:id', (req, res, next) => {
     if(!req.params.id) res.json(new ArgumentMissing()) 
     Game.update(req.params.id, req.body)
-        .then((result) => {
-            console.log(result)
-            res.format({
-                html: () => { 
-                    res.redirect('/games/' + req.params.id) 
-                },
-                json: () => { 
-                    res.status(200).send({ game: result }) 
-                }
-            })
+    .then((result) => {
+        console.log(result)
+        res.format({
+            html: () => { 
+                res.redirect('/games/' + req.params.id) 
+            },
+            json: () => { 
+                res.status(200).send({ game: result }) 
+            }
         })
-        .catch(next)
+    })
+    .catch(next)
 })
 
 router.delete('/:id', (req, res, next) => {
@@ -178,8 +187,9 @@ router.delete('/:id', (req, res, next) => {
 router.get('/:id/players', (req, res, err) => {
     if(!req.params.id) res.json(new ArgumentMissing()) 
     Game.getOne(req.params.id)
-        .then((response) => {
-            GamePlayer.getAll(response._id)
+        .then((game) => {
+            console.log(game)
+            GamePlayer.getAll(game._id)
             .then((games) => {
                 let playersId = []
                 games.forEach(game => playersId.push(game.playerId))
@@ -187,20 +197,24 @@ router.get('/:id/players', (req, res, err) => {
                     .then((playersInGame) => {
                         Player.getPlayerNotInGame(playersId)
                         .then((playersNotInGame) => {
-                            res.format({
-                                json: () => {
-                                    res.json({
-                                        players: playersInGame
-                                    })
-                                },
-                                html: () => {
-                                    res.render('get_games_players', {
-                                        game: response,
-                                        players: playersInGame,
-                                        noPlayers: playersNotInGame,
-                                        playersId: playersId.length
-                                    })
-                                }
+                            GameShot.getAll(game)
+                            .then((gameShots) => {
+                                res.format({
+                                    json: () => {
+                                        res.json({
+                                            players: playersInGame
+                                        })
+                                    },
+                                    html: () => {
+                                        res.render('get_games_players', {
+                                            game: game,
+                                            players: playersInGame,
+                                            noPlayers: playersNotInGame,
+                                            playersId: playersId.length,
+                                            gameShots: gameShots
+                                        })
+                                    }
+                                })
                             })
                         })
                     })
@@ -222,7 +236,7 @@ router.post('/:id/players', (req, res, next) => {
     if(!req.params.id) return res.send(new ArgumentMissing())
     Game.getOne(req.params.id)
     .then((game) => {
-        if(game.status != 'draft') { return res.json(new PlayerNotAddableGameStarted()) }
+        if(game.status != 'draft') { return res.status(422).json(new PlayerNotAddableGameStarted()) }
         GamePlayer.getAll(game._id)
         .then((games) => {
             let gamesId = []
@@ -233,18 +247,16 @@ router.post('/:id/players', (req, res, next) => {
             let playersId = req.body.player_id.split(',')
             GamePlayer.isAlreadyInGame(playersId)
             .then((result) => {
-                if(result.length > 0) return res.json(new PlayerNotAddable)
+                if(result.length > 0) return res.json(new PlayerNotAddable())
                 playersId.forEach(player => 
                     GamePlayer.create(player, game._id)
-                    .then((result) => {
+                    .then(() => {
                         res.format({
                             json: () => { 
-                                res.status(201).send({
-                                    player_added: result
-                                }) 
+                                res.status(204).send() 
                             },
                             html : () => {
-                                res.redirect('/games/' + result.gameId + '/players')
+                                res.redirect(301, '/games/' + game._id + '/players')
                             } 
                         })
                     })
@@ -259,7 +271,7 @@ router.post('/:id/players', (req, res, next) => {
 router.delete('/:id/players', (req, res, next) => {
     Game.getOne(req.params.id)
         .then((game) => {
-            if(game.status != 'draft') return res.json(new PlayerNotDeletable())
+            if(game.status != 'draft') return res.status(422).json(new PlayerNotDeletable())
             if(!req.query.id && !req.body.id) return res.json({'error' : 'Id missing for remove a player from this room.'})
             if(!req.body.id) {
                 req.query.id.forEach(id => 
@@ -297,15 +309,13 @@ router.post('/:id/shots', (req, res, next) => {
     if(!req.params.id) return res.send(new ArgumentMissing())
     Game.getOne(req.params.id)
     .then((game) => {
-        if(game.status == 'draft') return res.json(new GameNotStarted())
-        if(game.status == 'ended') return res.json(new GameEnded())
+        if(game.status == 'draft') return res.status(422).json(new GameNotStarted())
+        if(game.status == 'ended') return res.status(422).json(new GameEnded())
         GameShot.create(game._id, req.body)
         .then((result) => {
             res.format({
                 json: () => { 
-                    res.status(201).send({
-                        player_added: result
-                    }) 
+                    res.status(204).send() 
                 },
                 html : () => {
                     res.redirect('/games/' + result.gameId)

@@ -7,6 +7,7 @@ const playerRouter = require('./routers/player')
 const gameRouter = require('./routers/game')
 const hbs = require('express-handlebars')
 const methodOverride = require('method-override')
+const ApiNotAvailable = require('./errors/ApiNotAvailable')
 
 /** 
  * Define template engine
@@ -27,28 +28,42 @@ app.use('/', express.static(__dirname + '/assets'));
 app.use(methodOverride('_method'))
 
 
-// MIDDLEWARE POUR PARSER LE BODY
+/**
+ * Body parser
+ */
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
+
+/**
+ * Server
+ */
 app.listen(PORT, () => {
     console.log('Server is up on : http://' + HOST + ':' + PORT)
 })
 
+
+/**
+ * Routers
+ */
 app.use('/players', playerRouter)
 app.use('/games', gameRouter)
 
+
+
 // Home page
-app.get('/', (req, res) => {
+app.all('/', (req, res, next) => {
     res.format({
-        html: () => {
-          res.redirect('/games')
-        },
-        json: () => {
-          res.json(new ApiNotAvailable)
-        }
-    })
+      html: () => {
+        res.redirect('/games')
+      },
+      json: () => {
+        res.status(406).json(new ApiNotAvailable)
+      }
+  })
+    
 })
+
 
 //MIDDLEWARE 404
 

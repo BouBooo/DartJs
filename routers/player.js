@@ -6,50 +6,50 @@ const baseUrl = 'https://localhost/players'
 const validator = require('validator')
 const NotFound = require('../errors/NotFound')
 const ApiNotAvailable = require('../errors/ApiNotAvailable')
+const ArgumentMissing = require('../errors/ArgumentMissing')
 const PlayerNotDeletable = require('../errors/PlayerNotDeletable')
 
 
 /**
  * JSON: Json Players Objects
- * HTML: Player list
+ * HTML: Players list
  */
 router.get('/', (req, res, next) => {  
     Player.getAll(req.query)
-        .then((response) => {
-            res.format({
-                json: () => {
-                    res.json({
-                        players: response
-                    })
-                },
-                html: () => {
-                    res.render('players', {
-                        players: response
-                    })
-                }
-            })
+    .then((response) => {
+        res.format({
+            json: () => {
+                res.json({
+                    players: response
+                })
+            },
+            html: () => {
+                res.render('players', {
+                    players: response
+                })
+            }
         })
-        .catch((err) => {
-            throw err
-        })
+    })
+    .catch((err) => {
+        throw err
+    })
 })
 
 router.get('/new', (req, res, next) => {  
     res.format({
         html: () => {
-            res.render('get_players_new', {
-                title: 'Ajouter un joueur',
-                button: 'Ajouter'
-            })
+            res.render('get_players_new')
         },
         json: () => {
-            return res.json(new ApiNotAvailable)
+            return res.status(406).send({
+                error : new ApiNotAvailable()
+            })
         }
     })
 })
 
 router.get('/:id', (req, res, next) => {  
-    if(!req.params.id) res.json({message: 'Missing argument : id'})
+    if(!req.params.id) return res.json(new ArgumentMissing())
     Player.getOne(req.params.id)
         .then((response) => {
             res.format({
@@ -75,19 +75,19 @@ router.get('/:id', (req, res, next) => {
  * HTML: Redirect to /player/:id
  */
 router.post('/', (req, res, next) => {
-    if(!req.body.name || !req.body.email) return res.send({ error : 'Missing field name or email'})
+    if(!req.body.name || !req.body.email) return res.json(new ArgumentMissing())
     Player.checkValidEmail(req.body.email) 
     .then((alreadyExists) => {
-        if(alreadyExists.length > 0) return new NotFound()
+        if(alreadyExists.length > 0) return res.send({message : 'Email already used'})
         if(!validator.isEmail(req.body.email)) return res.send({message : 'Email not correctly formatted'})
         Player.create(req.body)
         .then((player) => {
             res.format({
                 json: () => { 
-                    res.status(201).json(player) 
+                    res.status(201).send(player) 
                 },
                 html : () => {
-                    res.redirect('/players/' + result._id + '/edit')
+                    res.redirect(301, '/players/' + player._id + '/edit')
                 } 
             })
         })
@@ -110,13 +110,13 @@ router.get('/:id/edit', (req, res, next) => {
         .then((result) => {
             res.format({
                 json: () => {
-                    return res.json(new ApiNotAvailable)
+                    return res.status(406).json({
+                        error : new ApiNotAvailable()
+                    })
                 },
                 html: () => {
                     res.render('get_players_patch', {
-                        title: 'Modifier un joueur',
-                        player: result.toJSON(),
-                        button: 'Modifier',
+                        player: result,
                         id: result._id
                     })
                 },
@@ -132,7 +132,7 @@ router.get('/:id/edit', (req, res, next) => {
  * HTML: Redirect to /players
  */
 router.patch('/:id', (req, res, next) => {
-    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    if(!req.params.id) return res.json(new ArgumentMissing())
     Player.update(req.params.id, req.body)
         .then((player) => {
             res.format({
@@ -140,41 +140,40 @@ router.patch('/:id', (req, res, next) => {
                     res.redirect(301, '/players') 
                 },
                 json: () => { 
-                    res.status(200).send({ player }) 
+                    res.status(200).send({player}) 
                 }
             })
         })
         .catch(next)
 })
 
-// Remove player & game_player associated
+/**
+ * JSON: 204
+ * HTML: Redirect to /players
+ */
 router.delete('/:id', (req, res, next) => {
-    if(!req.params.id) res.json({message: 'Missing argument : id'}) 
+    if(!req.params.id) return res.json(new ArgumentMissing())
     GamePlayer.getGameForPlayer(req.params.id) 
     .then((playerGame) => {
         Game.getOne(playerGame.gameId)
         .then((game) => {
-            if(game.status != 'draft') {
-                return res.json(new PlayerNotDeletable())
-            } 
-            else {
-                Player.remove(req.params.id)
+            if(game.status != 'draft') return res.json(new PlayerNotDeletable())
+            Player.remove(req.params.id)
+            .then(() => {
+                GamePlayer.multipleRemove(req.params.id)
                 .then(() => {
-                    GamePlayer.multipleRemove(req.params.id)
-                    .then(() => {
-                        res.format({
-                            html: () => { 
-                                res.redirect('/players') 
-                            },
-                            json: () => { 
-                                res.status(204) 
-                            }
-                        })
+                    res.format({
+                        html: () => { 
+                            res.redirect(301, '/players') 
+                        },
+                        json: () => { 
+                            res.status(204).send()
+                        }
                     })
-                    .catch(next)
-                    
                 })
-            }
+                .catch(next)
+                
+            })
         })
     })
 }) 

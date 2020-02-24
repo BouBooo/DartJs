@@ -16,6 +16,12 @@ const GameShot = mongoose.model('game_shot', new mongoose.Schema({
 }))
 
 module.exports = {
+
+    // Get game shots 
+    getAll(game) {
+        return GameShot.find({gameId: game._id})
+    },
+
     // Create new game_shot
     async create(gameId, params) {
         var params = { 

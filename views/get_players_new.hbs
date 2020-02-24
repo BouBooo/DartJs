@@ -1,20 +1,19 @@
 <div class="container">
-<h1>{{ title }}</h1>
-        
-<form method="POST" action="/players/">
-
- <table class="table table-striped table-bordered" width="55%">
-    <tr width="30%">
-      <th><label for="name">Name : </label></th>
-      <th><label for="name">Email : </label></th>
-      <th>Actions</th>
-    </tr>
-    <tr width="10%">
-      <td align="center"><input class="form-control" value="{{ player.name }}"width="20px" type="text" name="name" id="name" required/></td>
-      <td align="center"><input class="form-control" value="{{ player.email }}" width="20px" type="text" name="email" id="email" required/></td>
-      <td align="center"><button class="btn btn-link" type="submit">{{ button }}</button></td>
-    </tr>
-  </table>
+  <h1 class="text-center my-5">Ajouter un nouveau joueur</h1>
+          
+  <form method="POST" action="/players/">
+    <table class="table table-striped table-bordered" width="55%">
+      <tr width="30%">
+        <th><label for="name">Name : </label></th>
+        <th><label for="name">Email : </label></th>
+        <th>Actions</th>
+      </tr>
+      <tr width="10%">
+        <td align="center"><input class="form-control" value="{{ player.name }}"width="20px" type="text" name="name" id="name" required/></td>
+        <td align="center"><input class="form-control" value="{{ player.email }}" width="20px" type="text" name="email" id="email" required/></td>
+        <td align="center"><button class="btn btn-link" type="submit">Ajouter</button></td>
+      </tr>
+    </table>
   </form>
 </div>
 

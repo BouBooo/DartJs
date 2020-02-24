@@ -58,12 +58,21 @@ module.exports = {
         let els = { 
           name: params.name,
           mode: params.mode,
-          status: 'draft'
+          status: params.status
         }
         return await Game.updateOne({_id: id}, els)
       },
 
     remove: async (id) => {
         return Game.findOneAndRemove({_id: id})
+    },
+
+    launchGame: async (id) => {
+      let els = { 
+        name: params.name,
+        mode: params.mode,
+        status: 'started'
+      }
+      return await Game.updateOne({_id: id}, els)
     }
 }
