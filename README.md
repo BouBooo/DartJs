@@ -13,7 +13,7 @@ git clone https://github.com/BouBooo/DartJs.git
 cd DartJs
 ```
 
-#### Istallation des packages
+#### Installation des packages
 ```
 npm install
 ```
