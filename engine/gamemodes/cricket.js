@@ -22,14 +22,14 @@ class Cricket {
         inquirer.prompt([{
             name: 'playersChoice',
             type: 'list',
-            message: 'Please enter number of players : (Minimum 2 players)',
+            message: 'Nombre de joueurs : (Minimum 2 joueurs)',
             choices: [2, 3, 4],
             default: 0,
         }])
         .then((result) => {
             let nbrPlayers = result.playersChoice
             for (let i = 0; i < nbrPlayers; i++) {
-                let player = new Player(i, 'Player ' + i, 0)
+                let player = new Player(i, 'Joueur ' + i, 0)
                 this.players.push(player)
             }
             
@@ -76,7 +76,7 @@ class Cricket {
                     await this.shoot(this.players[p])
                     if(this.win === true) continue
                 }
-                console.table(this.players[p])
+                console.log('Nombres fermés  ('+ this.players[p].name +') : ' + this.players[p].closed)
             }
         }
         if(this.winner != null && this.winner.score > 0) console.log('Le gagnant est ' + this.winner.name + ' avec ' + this.winner.score + ' points.')
@@ -95,7 +95,6 @@ class Cricket {
                     player.targets.push(shot)
                     let count = 0
                     for(let i = 0; i < player.targets.length; ++i){
-
                         if(player.targets[i] == shot) {
                             count+= 1
                         }

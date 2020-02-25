@@ -8,6 +8,7 @@ class Player {
         this.lastScore = []
         this.count = 0
         this.shootLeft = 3
+        this.opened = []
     }
 
     setScore(value) {

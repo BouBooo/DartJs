@@ -21,14 +21,14 @@ class Le301 {
         inquirer.prompt([{
             name: 'playersChoice',
             type: 'list',
-            message: 'Please enter number of players : (Minimum 2 players)',
+            message: 'Nombre de joueurs : (Minimum 2 joueurs)',
             choices: [2, 3, 4],
             default: 0,
         }])
         .then((result) => {
             let nbrPlayers = result.playersChoice
             for (let i = 0; i < nbrPlayers; i++) {
-                let player = new Player(i, 'Player ' + i, 300)
+                let player = new Player(i, 'Joueur ' + i, 300)
                 this.players.push(player)
             }
             this.tour()

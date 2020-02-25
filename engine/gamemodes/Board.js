@@ -26,7 +26,7 @@ class Board {
         inquirer.prompt([{
             name: 'gamemode',
             type: 'list',
-            message: 'Select your gamemode :',
+            message: 'Sélection du mode de jeu :',
             choices: ['Around the world', '301', 'Cricket'],
             default: 0,
         }])
