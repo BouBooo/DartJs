@@ -18,7 +18,13 @@ cd DartJs
 npm install
 ```
 
-#### Lancement
+#### API
 ```
 node app.js
+```
+
+#### Moteur de jeu
+```
+cd engine/
+node engine.js
 ```
