@@ -2,9 +2,13 @@ const inquirer = require('inquirer')
 const Player = require('./Player')
 const GameModel = require('../../models/Game')
 const PlayerModel = require('../../models/Player')
+const TourDuMonde = require('../gamemodes/around-the-world')
+const Le301 = require('../gamemodes/301')
+const Cricket = require('../gamemodes/cricket')
 
 class Board {
     constructor() {
+        this.game = null
         this.name = 'MyPartyName'
         this.mode = null
         this.sectors = []
@@ -28,10 +32,16 @@ class Board {
         }])
         .then((result) => {
             this.mode = result.gamemode 
-            GameModel.create(this)
-            .then(() => {
-                this.initPlayers()
-            })
+                console.log(this.mode)
+                if(this.mode === 'Around the world') {
+                    this.game = new TourDuMonde()
+                } else if(this.mode === '301') {
+                    this.game = new Le301()
+                } else if(this.mode === 'Cricket') {
+                    this.game = new Cricket()
+                }
+                this.game.initPlayers()
+                // this.initPlayers()
         })
         .catch(function(error) {
             console.error(error);
@@ -49,8 +59,7 @@ class Board {
         .then((result) => {
             let nbrPlayers = result.playersChoice
             for (let i = 0; i < nbrPlayers; i++) {
-                let player = new Player(i, 'Player from cli ' + i)
-                let newPlayer = PlayerModel.create(player)
+                let player = new Player(i, 'Player ' + i)
                 this.players.push(player)
                 
             }
@@ -83,7 +92,6 @@ class Board {
                 player.score+=1
                 player.lastScore.push(player.score)
                 console.table(player.lastScore)
-                // console.log(player._id)
             } else {
                 console.log('T\'as raté ton tir boloss')
             }

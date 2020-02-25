@@ -1,0 +1,1 @@
+db.players.find({_id : ObjectId("5e52c52a4451a25bf85d2530") })

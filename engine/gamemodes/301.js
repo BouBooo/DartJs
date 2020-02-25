@@ -2,9 +2,19 @@ const inquirer = require('inquirer')
 const Player = require('./Player')
 const Board = require('./Board')
 
-class Le301 extends Board {
+class Le301 {
     constructor() {
-        super()
+        this.name = 'MyPartyName'
+        this.mode = null
+        this.sectors = []
+        this.players = []
+        this.win = false
+        this.winner = null
+        this.conditions = [15, 16, 17, 18, 19, 20, 0]
+        this.winOrFalse = []
+        this.higherScore = 0
+        this.roundScore = 0
+        this.count = 0
     }
 
     initPlayers() {
@@ -89,11 +99,7 @@ class Le301 extends Board {
                     else if(player.score - this.roundScore <= 0) {
                         console.log('Raté, retente le tour d\'après.')
                     }
-                    else {
-                        console.log('Else')
-                    }
-                    console.log(this.roundScore)
-                    console.log(player.score)
+                    console.log('Score actuel du joueur (' + player.name + ') : ' + player.score)
                 }                
             })
     }
