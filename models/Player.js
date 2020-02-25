@@ -22,7 +22,7 @@ module.exports = {
     // Get all players
     getAll : async (query) => {
       let sortValid = ['name', 'email', 'gameWin', 'gameLost']
-      if(!sortValid.includes(query.sort)) console.log('sort invalid')
+      if(!sortValid.includes(query.sort)) console.log('Sort invalid')
       let limit = parseInt(query.limit)
       let sort = query.sort
       let reverse = (query.reverse ? -1 : 1)

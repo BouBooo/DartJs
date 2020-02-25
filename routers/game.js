@@ -67,7 +67,6 @@ router.get('/:id', (req, res, next) => {
                             let randomShot = functions.createRandomShot(currentPlayer, game)
                             GameShot.getAll(game)
                             .then((gameShots) => {
-                                console.log(game)
                                 res.format({
                                     json: () => {
                                         res.json(game)
@@ -152,7 +151,6 @@ router.patch('/:id', (req, res, next) => {
     if(!req.params.id) res.json(new ArgumentMissing()) 
     Game.update(req.params.id, req.body)
     .then((result) => {
-        console.log(result)
         res.format({
             html: () => { 
                 res.redirect('/games/' + req.params.id) 
@@ -188,7 +186,6 @@ router.get('/:id/players', (req, res, err) => {
     if(!req.params.id) res.json(new ArgumentMissing()) 
     Game.getOne(req.params.id)
         .then((game) => {
-            console.log(game)
             GamePlayer.getAll(game._id)
             .then((games) => {
                 let playersId = []

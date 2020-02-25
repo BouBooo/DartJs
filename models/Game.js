@@ -24,7 +24,6 @@ module.exports = {
 
       let limit = parseInt(query.limit)
       let status = (statusValid.includes(query.status) ? query.status : statusValid)
-      console.log(statusValid)
       let sort = query.sort
       let reverse = (query.reverse ? -1 : 1)
       
@@ -41,7 +40,6 @@ module.exports = {
 
     // Create new game
     async create(params) {
-        console.log(params)
         var params = { 
             name: params.name,
             mode: params.mode,

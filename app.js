@@ -58,15 +58,16 @@ app.all('/', (req, res, next) => {
         res.redirect('/games')
       },
       json: () => {
-        res.status(406).json(new ApiNotAvailable)
+        res.status(406).json(new ApiNotAvailable())
       }
   })
     
 })
 
 
-//MIDDLEWARE 404
-
+/**
+ * Middleware
+ */
 app.use((err, req, res, next) => {
     res.format({
       html: () => {
