@@ -28,7 +28,7 @@ class TourDuMonde {
         .then((result) => {
             let nbrPlayers = result.playersChoice
             for (let i = 0; i < nbrPlayers; i++) {
-                let player = new Player(i, 'Player ' + i)
+                let player = new Player(i, 'Player ' + i, 0)
                 this.players.push(player)
             }
             this.tour()
